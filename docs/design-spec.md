@@ -318,50 +318,54 @@ A minimal one-time overlay introduces the gestures without interrupting the expe
 
 ---
 
-## 13. Monetisation ✅
+## 13. Monetisation ❌
 
 Drifting's core experience must remain free and uninterrupted. Monetisation must be invisible during normal use.
 
 **Guiding constraint:** if a monetisation mechanism causes a user to think about money while music is playing, it has failed.
 
-**Implemented: One-time tip / "Support the app" purchase**
+---
 
-A single non-consumable in-app purchase surfaced in Settings only. No prompts, no banners.
+### Drifting Plus — one-time purchase at $2.99
 
-- Product ID: `com.vitorfreitas.drifting.support`
-- Copy: *"Drifting is free. If you enjoy it, this helps keep it running."*
+A single non-consumable IAP surfaced in Settings only. No prompts, no banners, no subscription.
+
+- Product ID: `com.vitorfreitas.drifting.plus`
+- Copy: *"Drifting is free. Plus helps keep it running and unlocks a few extras for people who want more."*
 - Price shown live from App Store Connect
-- After purchase: section replaced with "Thank you for supporting Drifting ♥" — never shown again
+- After purchase: upgrade prompt replaced with confirmation — never shown again
 - Restore purchase link available for users reinstalling the app
-- Zero impact on core UX; no features gated
 
-**Future options (post-v1):**
-
-**Option B — Drifting Plus (premium tier)**
-
-A subscription or one-time upgrade (~$1.99/mo or $9.99 lifetime) unlocking additions that don't degrade the free experience:
+**Feature split:**
 
 | Feature | Free | Plus |
 |---|---|---|
-| Station catalog | Full | Full |
-| Recommendation engine | Full | Full |
-| Visualization | Standard | + unlockable themes / colour palettes |
-| Stream quality filter | 128kbps+ | 320kbps+ only |
-| Home screen widget | — | Station name + quick-drift button |
+| Full catalog + recommendation engine | ✅ | ✅ |
+| All gestures, saving, favorites | ✅ | ✅ |
+| Background playback, CarPlay | ✅ | ✅ |
+| All haptics | ✅ | ✅ |
+| Default visualization | ✅ | ✅ |
+| Stream quality filter | 128kbps+ | 320kbps+ |
+| Visualization themes | — | ✅ warm analogue, monochrome, neon |
+| Home screen widget | — | ✅ station name + quick-drift button |
+| Sleep timer | — | ✅ |
+| Listening stats | — | ✅ top genres, countries, listening time |
 
-**Option C — Visual themes pack (one-time IAP)**
-
-Additional visualization styles (warm analogue, monochrome, neon) sold as a cosmetic pack (~$1.99). The default Metal visualization remains free.
-
-**Option D — macOS / iPad companion app (separate paid app)**
-
-A separate App Store listing (~$4.99–$7.99) serving the ambient background music use case at a desk.
+**Deciding where future features land:**
+- Improves the core experience (recommendation, transitions, stability, CarPlay) → free
+- Adds something on top of an already-complete experience (new themes, new personalization tools) → Plus
 
 **What to avoid:**
 - Advertising of any kind
 - Featuring stations in exchange for payment
 - Locking swipe gestures, favorites, or any core interaction behind a paywall
 - Prompts during playback or on launch
+
+---
+
+### macOS / iPad companion app (future)
+
+A separate App Store listing (~$4.99–$7.99) serving the ambient background music use case at a desk. Separate product, not related to Plus.
 
 ---
 
@@ -374,5 +378,4 @@ A separate App Store listing (~$4.99–$7.99) serving the ambient background mus
 - **Android app** — native Kotlin
 - **CarPlay support**
 - **Advanced haptic choreography** — multi-parameter patterns evolving with music structure (verse/chorus/drop detection)
-- **Offline saved stations** — pre-buffer favorites for low-connectivity environments
 - **Web app** — React + Vite secondary platform (or Mac desktop app)
