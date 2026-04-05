@@ -1,13 +1,20 @@
 # Drifting — Product Design Spec
 
-**Date:** 2026-03-22
-**Status:** Approved
+**Date:** 2026-04-05
+**Status:** Active
+**Supersedes:** design-spec.md (v1, 2026-03-22), design-spec-v2.md (2026-04-03)
 
 ---
 
-## 1. Concept & Principles
+## Implementation status key
 
-Drifting is a passive music discovery app. The user opens it, music starts. There are no menus, no search, no playlists — just a full-screen audio visualization and a single interaction model: swipe to react.
+> ✅ Implemented — **⚠️ Partially implemented** — ❌ Not yet implemented
+
+---
+
+## 1. Concept & Principles ✅
+
+Drifting is a passive music discovery app. The user opens it, music starts. There are no menus, no search, no playlists — just a full-screen audio visualization and a single interaction model: swipe to navigate.
 
 **Guiding principles:**
 - **Zero friction to music** — audio starts within 2 seconds of opening the app on a good connection; visualization begins immediately regardless of stream state
@@ -16,30 +23,28 @@ Drifting is a passive music discovery app. The user opens it, music starts. Ther
 - **The app gets smarter silently** — preference learning happens in the background, never interrupting the experience
 - **Local-first** — no account, no login, no barrier. Preferences live on device.
 
-**What Drifting is NOT in v1:**
+**What Drifting is NOT:**
 - A music player (no playlists, no on-demand)
 - A radio directory (no browsing or searching)
-- A social app — social features (sharing, profiles, follows) are intentionally deferred, not excluded from the long-term vision
+- A social app — social features are intentionally deferred, not excluded from the long-term vision
 
 ---
 
-## 2. Platform Strategy
+## 2. Platform Strategy ✅
 
-iOS is the primary platform, built in native Swift to deliver the best possible haptic and audio experience. The web app serves the secondary "work computer" use case. Android is deferred to a future version.
+iOS is the primary platform, built in native Swift to deliver the best possible haptic and audio experience. Web and Android are deferred to future versions.
 
 | Platform | Tech | Priority |
 |---|---|---|
-| iOS | Native Swift | v1 — primary |
-| Web | React + Vite | v1 — secondary |
-| Android | Native Kotlin | Future version |
+| iOS | Native Swift | Current — primary |
+| Web | React + Vite | Future |
+| Android | Native Kotlin | Future |
 
-**Shared logic** (recommendation engine, Radio Browser API integration, quality filtering) is implemented in Swift for iOS and TypeScript for web independently. The concepts and interfaces are aligned but each platform owns its implementation.
-
-**Haptics are iOS-only in v1.** The web app has no haptic feedback. The web platform's Vibration API has insufficient iOS Safari support and is excluded from scope.
+**Haptics are iOS-only.** The web app has no haptic feedback.
 
 ---
 
-## 3. Radio Station Catalog
+## 3. Radio Station Catalog ✅
 
 **Source:** Radio Browser API — open, community-maintained, ~30k stations worldwide.
 
@@ -47,237 +52,327 @@ iOS is the primary platform, built in native Swift to deliver the best possible 
 - Minimum 128kbps bitrate
 - Music-only stations (exclude news, talk, sports, religion tags)
 - Active streams only (last-checked alive)
-- Prefer stations with genre and language metadata (better for recommendation learning)
+- Prefer stations with genre and language metadata
 - All languages and regions included
 
 **Stream reliability — discovery flow:**
 - On station selection, attempt to connect. Retry up to 3 times before advancing to the next candidate.
-- Auto-advance after 3 failed retries is not counted as a skip signal.
-- If a stream drops mid-session (after audio has started): listening time accumulated before the drop counts toward signal calculation as normal; the station receives a reliability penalty and is deprioritized for selection for the remainder of the session.
-- Signal weighting (Section 9) only applies once audio has successfully started playing. A swipe left on a buffering or failed stream carries no recommendation signal regardless of elapsed time.
+- Auto-advance after 3 failed retries is not counted as a recommendation signal.
+- If a stream drops mid-session: listening time before the drop is discarded and no signal is recorded ✅. The station is deprioritized for the remainder of the session ✅.
 
 **Stream reliability — saved stations:**
-- When a user taps a saved station, retry up to 3 times. If the stream cannot be reached, show an inline error indicator on that saved station entry. Do not auto-advance to a random station — the user's intent was to play a specific saved station.
+- When a user taps a saved station, retry up to 3 times. If the stream cannot be reached, an inline error indicator (⚠) appears on that saved station entry in Settings. ✅ Tapping the station again retries and clears the indicator.
 
 ---
 
-## 4. Stream Loading, Buffering & Transitions
+## 4. Stream Loading, Buffering & Transitions ✅
 
 Perceived loading time is a core UX concern. The app uses pre-buffering and carefully timed audio/visual fades to make every transition feel smooth and intentional — never abrupt.
 
 **App launch:**
-- The station catalog is pre-cached locally after first install and refreshed silently in the background — no API call on launch, station selection is instant
-- The idle visualization (slow ambient pulse) plays immediately on launch, within ~0.3s of the app opening
-- Stream buffering begins immediately in parallel with the UI rendering
-- Target: audio begins within 2 seconds of launch on a good connection (WiFi / 4G)
-- As the stream connects, audio fades in from silence to full volume over ~1.5s
-- The visualization simultaneously transitions from idle pulse to fully reactive mode on the same curve as the audio ramp
-- The effect: music and visuals emerge together, as if waking up — not appearing suddenly
-- On slow connections, the idle visualization continues until buffering completes; the user always sees something happening immediately
+- The station catalog is pre-cached locally after first install and refreshed silently in the background — no API call on launch, station selection is instant ✅
+- The idle visualization (slow ambient pulse) plays immediately on launch, within ~0.3s ✅
+- Stream buffering begins immediately in parallel with UI rendering ✅
+- Target: audio begins within 2 seconds of launch on a good connection ✅
+- Audio fades in from silence to full volume over ~1.5s ✅
+- The visualization transitions from idle pulse to fully reactive mode on the same curve ✅
 
-**Between stations — skip (swipe left or down):**
+**Between stations — swipe left (next) or swipe right (previous):**
+
 Three-act transition:
-1. **Exit** — on swipe, audio fades out over ~0.4s while the visualization sweeps in the swipe direction
-2. **Loading** — idle pulse plays while the pre-buffered next stream takes over (ideally near-invisible due to pre-buffering)
-3. **Enter** — new station's audio fades in from silence over ~1s while the visualization morphs into the new station's color identity and ramps to fully reactive
+1. **Exit** — audio fades out over ~0.4s ✅ while the visualization sweeps in the swipe direction ✅
+2. **Loading** — idle pulse plays while the pre-buffered next stream takes over ✅
+3. **Enter** — new station's audio fades in over ~1s ✅ while the visualization morphs into the new station's color identity ✅
 
-The audio volume and visualization energy always move together on the same curve. The visualization carries emotional continuity during the gap.
-
-**Like (swipe right):**
-No audio transition — music keeps playing uninterrupted. The intensity burst animation is the only feedback.
-
-**Save (swipe up):**
-No audio transition — music keeps playing uninterrupted. Subtle upward particle trail confirmation.
+**Save (swipe down):**
+No audio transition — music keeps playing uninterrupted. ✅ Full save burst animation (see Section 7). ✅
 
 **Timing summary:**
 
 | Moment | Audio | Visualization |
 |---|---|---|
 | Launch | Fade in over ~1.5s | Idle pulse → reactive, same curve |
-| Skip (exit) | Fade out over ~0.4s | Sweeps in swipe direction |
-| Skip (enter) | Fade in over ~1s | Morphs to new color identity, ramps up |
-| Like / Save | No change | Brief burst / flash, then continues |
-
-**Web — first interaction:**
-- Browsers block audio autoplay without a prior user gesture
-- A minimal full-screen dark canvas is shown with a subtle animated pulse and a "tap to start" prompt
-- The first tap unlocks the Web Audio context and begins the launch sequence above
-- Subsequent sessions: attempt autoplay on load, fall back to first-interaction screen only if blocked
-- This screen is the only exception to the "no UI chrome" principle and must be as minimal as possible
+| Next / Prev (exit) | Fade out over ~0.4s | Sweep in swipe direction ✅ |
+| Next / Prev (enter) | Fade in over ~1s | Morph to new color identity |
+| Save | No change | Radial burst, then continues |
 
 **Pre-buffering:**
-- While a station is playing, the app silently pre-selects and begins buffering the next candidate in the background
-- On swipe, the transition begins immediately — the pre-buffered stream reduces or eliminates the loading act
-- If pre-buffering has not completed (swipe happened quickly, or slow network), the idle pulse loading state plays until buffering finishes
+- While a station is playing, the app silently pre-selects and begins buffering the next candidate ✅
+- On swipe left, the transition begins immediately using the pre-buffered stream ✅
+- Swipe right plays back through a history stack; no pre-buffering needed ✅
+- Pre-buffer has a 20% chance of picking a saved station, otherwise uses the full weighted taste profile for pre-selection ✅
 
 ---
 
-## 5. Gesture System & Interaction Model
+## 5. Gesture System & Interaction Model ✅
 
 The full-screen visualization is the only visible element by default. All interaction happens through gestures.
 
 | Gesture | Action | Recommendation Signal |
 |---|---|---|
-| Swipe left | Skip (dislike) | Negative — strength depends on listening duration (see Section 9) |
-| Swipe right | Like — station keeps playing | Positive |
-| Swipe up | Save / bookmark — station keeps playing | Strong positive |
-| Swipe down | Next (neutral) — move on without signaling | No signal, regardless of listening duration |
-| Tap | Show info overlay + settings access | None |
+| Swipe left | Next station | Negative — strength depends on listening duration (see Section 9) |
+| Swipe right | Previous station (history stack) | Mild positive |
+| Swipe down | Save / bookmark — station keeps playing | Strongest positive |
+| Swipe up | Reserved — no action | None |
+| Tap | Show info overlay | None |
 
-**Positive signals are not duration-modulated.** A like (swipe right) or save (swipe up) carries the same weight regardless of how long the user has been listening — the intent is unambiguous.
+**History stack:**
+- The app maintains an in-memory ordered list of stations played in the session ✅
+- Swipe right walks back through the list; swipe left from the oldest entry advances to a new station ✅
+- History is not persisted across sessions
 
 **Accidental swipe prevention:**
-- Gestures require a minimum drag distance threshold before committing
-- A visual "pull" indicator shows as the user drags, giving them a chance to cancel by releasing early
+- Gestures require a minimum drag distance threshold before committing ✅
+- A visual pull indicator shows as the user drags, giving them a chance to cancel by releasing early ✅
+
+**Save — already saved feedback:**
+- If the user swipes down on a station already in their saved list, a light haptic fires and an "Already saved ♥" toast appears briefly — no duplicate is added ✅
 
 **Tap — info overlay:**
-- Station name, country, and genre fade in for ~3 seconds then disappear
-- A small, near-transparent settings icon appears alongside the info
-- Tapping the settings icon opens the settings panel as a modal overlay (music keeps playing)
+- Station name, country/state, genre, and current track fade in for ~3 seconds then disappear ✅
+- A small heart icon appears next to the station name when the playing station is saved ✅
+- The overlay contains three action icons (right side, bottom-aligned), each with a 44×44 pt tap target ✅
+- **Play/pause** — toggles playback ✅
+- **Audio output** — opens the system `AVRoutePickerView` (AirPlay / Bluetooth speaker / headphone routing) ✅
+- **Settings** — opens the settings panel as a modal overlay, music keeps playing ✅
 
 ---
 
-## 6. Haptics (iOS only)
+## 6. Haptics (iOS only) ✅
 
-Haptics are a core part of the emotional experience on iOS, implemented using Core Haptics for maximum expressiveness. The web app has no haptics in v1.
+Haptics are implemented using Core Haptics for maximum expressiveness. Two independent controls exist: command haptics and beat sync haptics.
 
-**Gesture haptics:**
+**Command haptics (on by default):**
 
-| Gesture | Haptic |
+| Gesture / Action | Haptic |
 |---|---|
-| Swipe left | Heavy impact — the "no" feel |
-| Swipe right | Medium + soft double pulse — satisfying "yes" |
-| Swipe up | Light single tap — clean and precise |
-| Swipe down | Lightest neutral confirmation |
-| Tap | No haptic |
+| Swipe left (next) | Heavy impact — decisive skip |
+| Swipe right (previous) | Medium pulse — going back |
+| Swipe down (save, new) | Triple escalating pulse — soft → medium → strong |
+| Swipe down (already saved) | Single light tap |
+| Button tap (play/pause, settings) | Light tap |
+| Swipe up | Reserved |
 
-**Beat-synced haptics (v1 feature):**
-- The app analyzes the audio in real time and pulses haptics in sync with the music beat using Core Haptics' precise timing API to minimize drift
-- Enabled by default
-- User-controllable via an intensity slider in settings
-- Can be fully disabled in settings
+**Beat-synced haptics (off by default):**
+- The app pulses haptics in sync with the detected beat using Core Haptics' precise timing API ✅
+- **Off by default** — user must enable in settings ✅
+- User-controllable intensity slider (visible only when enabled) ✅
+- Can be fully disabled ✅
+
+**Battery saving:**
+- Both command and beat-sync haptics are suppressed when Battery Saving mode is active (see Section 10) ✅
 
 ---
 
-## 7. Visualization System
+## 7. Visualization System ✅
 
-The full-screen canvas is the entire UI. It reacts to the music in real time using frequency analysis.
+The full-screen Metal canvas reacts to the music in real time using frequency analysis.
 
 **Technical approach:**
-- Audio analyzed via AVAudioEngine + FFT on iOS; Web Audio API on web
-- FFT extracts bass, mids, and highs to drive visual parameters
-- Rendered at the display's native refresh rate (60Hz, 120Hz, etc.)
+- Audio analyzed via `AVAudioEngine` + FFT, extracting bass, mid, and treble energy bands ✅
+- Beat detection via energy spike analysis ✅
+- Rendered at the display's native refresh rate via `MTKView` ✅
 
 **Visual style:**
-- Dark background (near-black, not pure black)
-- Each station gets a seeded color identity — palette shifts per station so visuals feel unique to each stream
-- Inspired by Windows Media Player — frequency bars, flowing waveforms, symmetry — but modernized with fluid particle systems, bloom/glow effects, and smooth interpolation
-- Motion never feels mechanical
+- Dark background (near-black, not pure black) ✅
+- Each station gets a seeded color identity — palette shifts per station so visuals feel unique ✅
+- Fluid particle field, expanding ripple rings on beats, glow, breathing ring — music-reactive throughout ✅
+- Speech detection suppresses bass/beat pulsation during vocal passages ✅
 
 **Visual states:**
 
-| State | Behavior |
-|---|---|
-| Playing | Full reactive visualization driven by audio frequencies |
-| Loading / buffering | Slow idle pulse — calm and ambient, signals something is coming |
-| Transitioning | Visualization morphs/dissolves as old station fades and new one loads |
-| Like burst | Brief intensity spike — brighter, more energetic — then settles |
-| Save flash | Subtle upward motion, then returns to normal |
+| State | Behavior | Status |
+|---|---|---|
+| Playing | Full reactive visualization driven by audio frequencies | ✅ |
+| Loading / buffering | Slow idle pulse — calm and ambient | ✅ |
+| Transitioning | Visualization morphs to new station color identity | ✅ |
+| Skip direction sweep | Visualization sweeps in the swipe direction on skip | ✅ |
+| Save burst | 8 particles explode radially outward + expanding ring, fades over ~1.5s | ✅ |
+| Already-saved flash | Soft center glow (lower intensity than save burst, no particles) | ✅ |
 
 **Performance:**
-- Targets native display refresh rate by default
-- Automatically drops to 60fps if: battery saver / low power mode is active, or device frame budget is consistently exceeded
-- This throttling is automatic — no user-facing control
-- Rendering pauses when app is backgrounded
-- Fallback to simpler Canvas 2D renderer on lower-end devices (web)
+- Targets native display refresh rate (120fps) by default ✅
+- Throttles to 60fps when Battery Saving mode is active ✅
+- Rendering pauses when app is backgrounded ✅
 
 ---
 
-## 8. Background Playback
+## 8. Background Playback ✅
 
-Audio continues playing when the app is backgrounded or the device is locked on both platforms.
+Audio continues playing when the app is backgrounded or the device is locked.
 
-**iOS:**
-- AVAudioSession configured with `.playback` category so audio continues uninterrupted in the background
-- v1 includes minimal lock screen controls (pause/stop only) to satisfy Apple App Store requirements for background audio apps. Richer controls (skip, station info) are deferred to a future version.
-- If a stream drops while backgrounded, the app silently retries (up to 3 times) and advances to the next pre-buffered candidate. The user may notice a brief silence but no action is required.
-
-**Web:**
-- The Web Audio API context is kept alive when the tab is backgrounded
-- Browsers may throttle or suspend background tabs; the app detects suspension and resumes the stream when the tab returns to the foreground
+- `AVAudioSession` configured with `.playback` category ✅
+- Lock screen controls (play/pause, skip, station name, current track) via `MPNowPlayingInfoCenter` and `MPRemoteCommandCenter` ✅
+- If a stream drops while backgrounded, the app silently retries up to 3 times and advances to the next pre-buffered candidate ✅
 
 ---
 
-## 9. Recommendation Engine
+## 9. Recommendation Engine ✅
 
 Drifting builds a taste profile silently using signals from gestures and listening duration.
 
 **Signal weighting:**
-
-Duration modifies the strength of a left-swipe (dislike) only. Positive signals (like, save) are not duration-modulated. Swipe down is always neutral. Signal weighting only applies once audio has successfully started playing (see Section 3).
 
 | Condition | Signal |
 |---|---|
 | Swipe left after < 5s of audio | Strong negative |
 | Swipe left between 5s–30s of audio | Moderate negative |
 | Swipe left after > 30s of audio | Mild negative |
-| Swipe down (any duration) | No signal |
 | Listening > 60s without any gesture | Weak positive |
-| Like (swipe right, any duration) | Positive |
-| Save (swipe up, any duration) | Strongest positive |
+| Swipe right (any duration) | Mild positive |
+| Swipe down / save (any duration) | Strongest positive |
 
-**Interaction counting:**
-- A gesture (any swipe) always counts as exactly one interaction
-- A passive listen exceeding 60s without a gesture counts as one interaction
-- If a gesture occurs at or after 60s, only the gesture is counted — the passive listen is superseded, not added
-
-**What gets learned:**
-- Genre / music style
-- Language and region of station
-- Tempo / energy level (where metadata allows)
-- Time-of-day patterns (e.g. mellow mornings, energetic evenings)
+Positive signals are not duration-modulated. Signal weighting only applies once audio has successfully started playing.
 
 **Station selection — three phases:**
 
-1. **Cold start** (0–15 interactions) — random selection from quality-filtered catalog. Diversity is enforced by bucketing stations by genre and cycling through buckets, preventing consecutive plays of the same genre.
-2. **Learning phase** (16–75 interactions) — 60% exploit known preferences, 40% explore new territory
-3. **Mature profile** (76+ interactions) — weighted toward preferences, always keeping ~20% exploration to avoid filter bubble
+1. **Cold start** (0–15 interactions) — random selection with genre diversity: avoids picking a station with the same primary genre as the previous one ✅
+2. **Learning phase** (16–75 interactions) — weighted random selection using accumulated taste profile scores ✅
+3. **Mature profile** (76+ interactions) — stronger exploitation of preferences (score exponent amplified), same weighted random mechanism ✅
+
+In all phases, 15% of picks are fully random (exploration) to surface genuinely new stations and prevent filter bubble. ✅
+
+An additional 20% of picks inject a saved station from the user's favorites list, ensuring loved stations resurface naturally. ✅
+
+**What gets learned:**
+- Genre / music style (via station tags) ✅
+- Country and language of station ✅
+- ❌ Tempo / energy level — not yet implemented
+- ❌ Time-of-day patterns — not yet implemented
 
 **Local storage:**
-- Taste profile stored as a weighted map on-device
-- Interaction history kept for deduplication (avoid replaying recently skipped stations)
-- Saved stations stored as a persistent separate list
+- Taste profile stored as a weighted map on-device, persisted as JSON ✅
+- Recently played stations tracked for deduplication ✅
+- Saved stations stored as a separate persistent list ✅
 
-**No backend in v1.** Everything runs client-side. No account required.
+No backend. Everything runs client-side. No account required.
 
 ---
 
-## 10. Settings
+## 10. Settings ✅
 
-Settings open as a modal overlay (tap → info overlay → settings icon). The main screen and audio remain active behind the modal. Music always keeps playing.
+Settings open as a modal overlay (tap → info overlay → settings icon). Music always keeps playing.
 
-The gesture context within settings is independent of the main screen — swipe gestures inside the modal are standard list interactions and do not trigger the main screen's recommendation gesture system.
+**Playback:**
+- Start with a Saved Station toggle — on launch, plays a random saved station if available (on by default) ✅
+- Battery Saving toggle — limits visualization to 60fps and disables all haptics ✅
+  - Automatically enabled when the device is in Low Power Mode; toggle is greyed out with an explanatory note ✅
+  - Resets to off when Low Power Mode is disabled ✅
 
 **Haptics (iOS only):**
-- Beat-synced haptics toggle (on by default)
-- Haptic intensity slider (visible only when haptics are enabled)
+- Command Haptics toggle (on by default) — controls gesture and button haptics ✅
+- Beat Sync Haptics toggle (off by default) ✅
+- Haptic intensity slider (visible only when Beat Sync is enabled) ✅
+
+**Support:**
+- Single "Support Drifting" one-time IAP surfaced here only — see Section 13 ✅
 
 **Saved Stations:**
-- A scrollable list of bookmarked stations (added via swipe up on the main screen)
-- Tapping a saved station plays it immediately and closes settings
-- Removing a saved station: swipe left on the list entry — pure UI deletion, no recommendation signal
-- If a saved station's stream is unavailable, it shows an inline error indicator
+- A scrollable list of bookmarked stations (added via swipe down on the main screen) ✅
+- Tapping a saved station plays it immediately and closes settings ✅
+- Removing a saved station: swipe left on the list entry ✅
+- Inline error indicator (⚠) for saved stations whose streams are unreachable after 3 retries ✅
 
 **Taste Profile:**
-- Reset taste profile — clears all learned preferences and interaction history, returning to cold start
+- Reset taste profile — shows a confirmation dialog explaining the user will return to random discovery, then clears all learned preferences and immediately plays the next random station ✅
 
 ---
 
-## 11. Future Considerations (Out of Scope for v1)
+## 11. Launch Experience ✅
 
+The launch experience must never show a blank black screen. Branding should feel like part of the visualization rather than a loading screen.
+
+**Launch sequence:**
+1. On app open, the idle visualization (slow ambient pulse) begins immediately within ~0.3s ✅
+2. The app name **"drifting"** fades in centered on the canvas in a thin serif typeface at ~60% opacity ✅
+3. The wordmark displays for a minimum of 1.5s — if audio connects faster, the fade-out is delayed ✅
+4. Once the first station begins playing, the wordmark fades out over ~0.8s ✅
+5. Audio fades in normally; the visualization transitions from idle pulse to reactive mode ✅
+
+**Design constraints:**
+- No loading spinner, progress bar, or percentage — the idle pulse IS the loading indicator
+- The wordmark reads as ambient texture, not a traditional splash screen
+
+---
+
+## 12. First-Run Gesture Tutorial ✅
+
+A minimal one-time overlay introduces the gestures without interrupting the experience.
+
+**Behaviour:**
+- Shown only on the very first launch, persisted via `UserDefaults` ✅
+- Appears ~2s after audio first begins playing ✅
+- Auto-dismisses after the user performs any swipe or tap gesture ✅
+- Auto-dismisses after 8s if no gesture occurs ✅
+- Never shown again after dismissal ✅
+
+**Visual design:**
+- Four hint labels arranged around the centre of the screen:
+  - ← **next station**
+  - → **previous station**
+  - ↓ **save station**
+  - · **tap** (centre, for the info overlay)
+- Low-opacity white (~0.6) — visualization remains visible underneath ✅
+- No buttons, no "Got it" prompt
+- Fade-in 0.4s, fade-out 0.5s ✅
+
+---
+
+## 13. Monetisation ✅
+
+Drifting's core experience must remain free and uninterrupted. Monetisation must be invisible during normal use.
+
+**Guiding constraint:** if a monetisation mechanism causes a user to think about money while music is playing, it has failed.
+
+**Implemented: One-time tip / "Support the app" purchase**
+
+A single non-consumable in-app purchase surfaced in Settings only. No prompts, no banners.
+
+- Product ID: `com.vitorfreitas.drifting.support`
+- Copy: *"Drifting is free. If you enjoy it, this helps keep it running."*
+- Price shown live from App Store Connect
+- After purchase: section replaced with "Thank you for supporting Drifting ♥" — never shown again
+- Restore purchase link available for users reinstalling the app
+- Zero impact on core UX; no features gated
+
+**Future options (post-v1):**
+
+**Option B — Drifting Plus (premium tier)**
+
+A subscription or one-time upgrade (~$1.99/mo or $9.99 lifetime) unlocking additions that don't degrade the free experience:
+
+| Feature | Free | Plus |
+|---|---|---|
+| Station catalog | Full | Full |
+| Recommendation engine | Full | Full |
+| Visualization | Standard | + unlockable themes / colour palettes |
+| Stream quality filter | 128kbps+ | 320kbps+ only |
+| Home screen widget | — | Station name + quick-drift button |
+
+**Option C — Visual themes pack (one-time IAP)**
+
+Additional visualization styles (warm analogue, monochrome, neon) sold as a cosmetic pack (~$1.99). The default Metal visualization remains free.
+
+**Option D — macOS / iPad companion app (separate paid app)**
+
+A separate App Store listing (~$4.99–$7.99) serving the ambient background music use case at a desk.
+
+**What to avoid:**
+- Advertising of any kind
+- Featuring stations in exchange for payment
+- Locking swipe gestures, favorites, or any core interaction behind a paywall
+- Prompts during playback or on launch
+
+---
+
+## 14. Future Considerations
+
+- **Tempo / energy level learning** — factor stream energy into recommendation weights
+- **Time-of-day learning** — mellow mornings, energetic evenings
 - **Account + sync** — optional sign-up to sync taste profile and saved stations across devices
-- **Social features** — sharing stations, following friends, seeing what others are listening to
-- **Android app** — native Kotlin, same product experience
-- **Advanced haptic choreography** — multi-parameter haptic patterns that evolve with music structure (verse/chorus/drop detection) beyond simple beat-sync
-- **Richer lock screen controls** — skip, station info, CarPlay support
-- **Offline saved stations** — pre-buffer saved stations for low-connectivity environments
+- **Social features** — following friends (station sharing via deep link is implemented ✅)
+- **Android app** — native Kotlin
+- **CarPlay support**
+- **Advanced haptic choreography** — multi-parameter patterns evolving with music structure (verse/chorus/drop detection)
+- **Offline saved stations** — pre-buffer favorites for low-connectivity environments
+- **Web app** — React + Vite secondary platform (or Mac desktop app)
