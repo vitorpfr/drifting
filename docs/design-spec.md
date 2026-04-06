@@ -1,6 +1,6 @@
 # Drifting — Product Design Spec
 
-**Date:** 2026-04-05
+**Date:** 2026-04-07
 **Status:** Active
 **Supersedes:** design-spec.md (v1, 2026-03-22), design-spec-v2.md (2026-04-03)
 
@@ -63,6 +63,16 @@ iOS is the primary platform, built in native Swift to deliver the best possible 
 **Stream reliability — saved stations:**
 - When a user taps a saved station, retry up to 3 times. If the stream cannot be reached, an inline error indicator (⚠) appears on that saved station entry in Settings. ✅ Tapping the station again retries and clears the indicator.
 
+**Handle connectivity issues ⚠️**
+- "connecting" label appears during loading state (after wordmark fades out) ✅
+- No-connection overlay (wifi.slash) shown when network is unavailable ✅
+- Stall watchdog: AVPlayer stall detected via `timeControlStatus`; retries after 15s ✅
+- Load timeout: 10s per attempt to catch hung connections ✅
+- Analyzer watchdog: if visualization silent while playing, restarts analyzer stream every 3s ✅
+- Analyzer/audio sync: frequency data gated on `playerState == .playing` ✅
+- Tap to retry while idle ✅
+- Auto-resume current station on network recovery ⚠️ — reconnection after wifi returns is partially working; edge cases remain
+
 ---
 
 ## 4. Stream Loading, Buffering & Transitions ✅
@@ -113,7 +123,7 @@ The full-screen visualization is the only visible element by default. All intera
 | Swipe left | Next station | Negative — strength depends on listening duration (see Section 9) |
 | Swipe right | Previous station (history stack) | Mild positive |
 | Swipe down | Save / bookmark — station keeps playing | Strongest positive |
-| Swipe up | Reserved — no action | None |
+| Swipe up | Open favorites shelf (bottom sheet) | None |
 | Tap | Show info overlay | None |
 
 **History stack:**
@@ -128,13 +138,25 @@ The full-screen visualization is the only visible element by default. All intera
 **Save — already saved feedback:**
 - If the user swipes down on a station already in their saved list, a light haptic fires and an "Already saved ♥" toast appears briefly — no duplicate is added ✅
 
+**Favorites shelf (swipe up):**
+- Swipe up from the main screen slides up a bottom sheet showing saved stations ✅
+- Tapping a station plays it immediately and dismisses the sheet ✅
+- Swipe-to-delete for management ✅
+- The current station is visually highlighted with a `speaker.wave.2.fill` icon ✅
+- Section header: "Saved stations" ✅
+- The mnemonic is intentional: swipe down to store, swipe up to recall ✅
+
 **Tap — info overlay:**
-- Station name, country/state, genre, and current track fade in for ~3 seconds then disappear ✅
-- A small heart icon appears next to the station name when the playing station is saved ✅
-- The overlay contains three action icons (right side, bottom-aligned), each with a 44×44 pt tap target ✅
-- **Play/pause** — toggles playback ✅
-- **Audio output** — opens the system `AVRoutePickerView` (AirPlay / Bluetooth speaker / headphone routing) ✅
-- **Settings** — opens the settings panel as a modal overlay, music keeps playing ✅
+- Auto-dismisses after 3 seconds. Re-triggered on station change, track change, and on return from any sheet. ✅
+- **Top row (right-aligned):** share button · settings button ✅
+- **Bottom row (left to right):** search icon · filter icon · AirPlay button · play/pause button ✅
+  - Search and filter icons are hidden (opacity 0, non-interactive) for non-Plus users so AirPlay and play/pause never shift position ✅
+  - Filter icon uses a filled accent color tint when a filter is active ✅
+- **Station info (bottom-left):**
+  - Current track title (if available) ✅
+  - Station name · `heart.fill` if saved · `HQ` badge if bitrate ≥ 320kbps · `waveform` icon if playing ✅
+  - Location (state + country) ✅
+  - Genre (first tag, title-cased) ✅
 
 ---
 
@@ -189,6 +211,20 @@ The full-screen Metal canvas reacts to the music in real time using frequency an
 | Skip direction sweep | Visualization sweeps in the swipe direction on skip | ✅ |
 | Save burst | 8 particles explode radially outward + expanding ring, fades over ~1.5s | ✅ |
 | Already-saved flash | Soft center glow (lower intensity than save burst, no particles) | ✅ |
+
+**Visualization themes (Plus):**
+
+All Plus themes (except Drift) are selectable from Settings → Plus → Theme picker. ✅
+
+| Theme | Description | Status |
+|---|---|---|
+| Drift | Default. Ring + ripples + floating particles. Free. | ✅ |
+| Minimal | Single clean ring, no particles or ripples. | ✅ |
+| Aurora | Flowing horizontal light bands driven by bass/mid. | ✅ |
+| Neon | Sharp electric ring with outer echo ring and dense particle field. | ✅ |
+| Alchemy | Domain-warped plasma (WMP Alchemy-inspired) — fluid organic look. | ✅ |
+
+Colors are station-specific and deterministic: derived from a hash of the station ID (`ColorIdentity`). ✅
 
 **Performance:**
 - Targets native display refresh rate (120fps) by default ✅
@@ -254,7 +290,7 @@ No backend. Everything runs client-side. No account required.
 Settings open as a modal overlay (tap → info overlay → settings icon). Music always keeps playing.
 
 **Playback:**
-- Start with a Saved Station toggle — on launch, plays a random saved station if available (on by default) ✅
+- Play station on launch — Picker with: Random · From Favorites · (Plus) specific saved station ✅
 - Battery Saving toggle — limits visualization to 60fps and disables all haptics ✅
   - Automatically enabled when the device is in Low Power Mode; toggle is greyed out with an explanatory note ✅
   - Resets to off when Low Power Mode is disabled ✅
@@ -264,17 +300,19 @@ Settings open as a modal overlay (tap → info overlay → settings icon). Music
 - Beat Sync Haptics toggle (off by default) ✅
 - Haptic intensity slider (visible only when Beat Sync is enabled) ✅
 
-**Support:**
-- Single "Support Drifting" one-time IAP surfaced here only — see Section 13 ✅
+**Plus section (unlocked):**
+- Listening Stats ✅
+- Station Filter (country + canonical genre picker, 14 genres) ✅
+- Station Search (name search with direct play) ✅
+- Theme picker (Drift, Minimal, Aurora, Neon, Alchemy) ✅
+- High Quality Only toggle (320kbps+, default on) ✅
+- Sleep Timer picker (15 / 30 / 60 min) ✅
 
-**Saved Stations:**
-- A scrollable list of bookmarked stations (added via swipe down on the main screen) ✅
-- Tapping a saved station plays it immediately and closes settings ✅
-- Removing a saved station: swipe left on the list entry ✅
-- Inline error indicator (⚠) for saved stations whose streams are unreachable after 3 retries ✅
+**Plus section (locked):**
+- Feature pitch with upgrade button showing price + "once", restore purchase link ✅
 
-**Taste Profile:**
-- Reset taste profile — shows a confirmation dialog explaining the user will return to random discovery, then clears all learned preferences and immediately plays the next random station ✅
+**Reset section:**
+- Reset Taste Profile (destructive, confirmation dialog) ✅
 
 ---
 
@@ -318,7 +356,7 @@ A minimal one-time overlay introduces the gestures without interrupting the expe
 
 ---
 
-## 13. Monetisation ❌
+## 13. Monetisation ✅
 
 Drifting's core experience must remain free and uninterrupted. Monetisation must be invisible during normal use.
 
@@ -326,15 +364,16 @@ Drifting's core experience must remain free and uninterrupted. Monetisation must
 
 ---
 
-### Drifting Plus — one-time purchase at $2.99
+### Drifting Plus — one-time purchase ✅
 
 A single non-consumable IAP surfaced in Settings only. No prompts, no banners, no subscription.
 
-- Product ID: `com.vitorfreitas.drifting.plus`
-- Copy: *"Drifting is free. Plus helps keep it running and unlocks a few extras for people who want more."*
-- Price shown live from App Store Connect
-- After purchase: upgrade prompt replaced with confirmation — never shown again
-- Restore purchase link available for users reinstalling the app
+- Product ID: `com.vitorfreitas.drifting.plus` ✅
+- Copy: *"Drifting is free. Plus helps keep it running and unlocks a few extras for people who want more."* ✅
+- Price shown live from App Store Connect ✅
+- After purchase: upgrade prompt replaced with feature list — never shown again ✅
+- Restore purchase link available for users reinstalling the app ✅
+- Purchase celebration: haptic + "Welcome to Plus ♥" toast ✅
 
 **Feature split:**
 
@@ -342,14 +381,16 @@ A single non-consumable IAP surfaced in Settings only. No prompts, no banners, n
 |---|---|---|
 | Full catalog + recommendation engine | ✅ | ✅ |
 | All gestures, saving, favorites | ✅ | ✅ |
-| Background playback, CarPlay | ✅ | ✅ |
+| Background playback | ✅ | ✅ |
 | All haptics | ✅ | ✅ |
-| Default visualization | ✅ | ✅ |
-| Stream quality filter | 128kbps+ | 320kbps+ |
-| Visualization themes | — | ✅ warm analogue, monochrome, neon |
-| Home screen widget | — | ✅ station name + quick-drift button |
-| Sleep timer | — | ✅ |
-| Listening stats | — | ✅ top genres, countries, listening time |
+| Default visualization (Drift theme) | ✅ | ✅ |
+| Stream quality | 128kbps+ | ✅ 320kbps+ filter toggle (default on), HQ badge in overlay |
+| Visualization themes | — | ✅ Drift (default), Minimal, Aurora, Neon, Alchemy |
+| Home screen widget | — | ✅ now playing — station, track, HQ badge, play state, country/genre, station color gradient |
+| Sleep timer | — | ✅ 15 / 30 / 60 min |
+| Listening stats | — | ✅ total time, top genres/countries |
+| Station filter | — | ✅ country filter + curated canonical genre picker (14 genres) |
+| Station search | — | ✅ name search with direct play |
 
 **Deciding where future features land:**
 - Improves the core experience (recommendation, transitions, stability, CarPlay) → free
@@ -369,7 +410,19 @@ A separate App Store listing (~$4.99–$7.99) serving the ambient background mus
 
 ---
 
-## 14. Future Considerations
+## 14. Home Screen Widget ✅
+
+**Sizes:** small, medium. ✅
+
+**Plus users:** station name, current track (if available), HQ badge, `waveform` icon when playing, country · genre detail line. Background is a linear gradient from the station's unique color (top-leading) to black (bottom-trailing). A decorative ring arc is partially visible at the bottom-right corner. Tapping opens the app. ✅
+
+**Non-Plus users:** "drifting" wordmark + "Get Drifting Plus for widget access" upgrade prompt. ✅
+
+Data is shared via App Group (`group.com.vitorfreitas.drifting`) UserDefaults. AppState writes on every station change, track change, pause/resume, and Plus purchase. Widget reloads on each write + hourly fallback. ✅
+
+---
+
+## 15. Future Considerations
 
 - **Tempo / energy level learning** — factor stream energy into recommendation weights
 - **Time-of-day learning** — mellow mornings, energetic evenings
