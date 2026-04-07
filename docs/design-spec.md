@@ -365,7 +365,7 @@ Drifting's core experience must remain free and uninterrupted. Monetisation must
 
 ---
 
-### Drifting Plus — one-time purchase ✅
+### Drifting Plus — $4.99 one-time purchase ✅
 
 A single non-consumable IAP surfaced in Settings only. No prompts, no banners, no subscription.
 

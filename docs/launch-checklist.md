@@ -7,7 +7,7 @@ Tracks everything needed to submit to the App Store. In-app features are tracked
 ## App Store Connect Setup
 
 - [ ] Create app in ASC — Bundle ID `com.vitorfreitas.drifting`, category: Music
-- [ ] Create IAP product — ID `com.vitorfreitas.drifting.plus`, non-consumable, set price tier, add display name and description
+- [ ] Create IAP product — ID `com.vitorfreitas.drifting.plus`, non-consumable, **Tier 5 ($4.99)**, add display name and description
 - [ ] Fill out age rating questionnaire (expected: 4+)
 - [ ] Fill out Privacy Nutrition Label — select "Data Not Collected" and complete the form
 - [ ] Add `ITSAppUsesNonExemptEncryption = NO` to Info.plist (export compliance)
