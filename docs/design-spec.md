@@ -49,8 +49,8 @@ iOS is the primary platform, built in native Swift to deliver the best possible 
 **Source:** Radio Browser API — open, community-maintained, ~30k stations worldwide.
 
 **Quality filters applied at query time:**
-- Minimum 128kbps bitrate
-- Music-only stations (exclude news, talk, sports, religion tags)
+- Minimum 64kbps bitrate
+- Exclude stations with only non-music tags (news, talk, sports, religion); tagless stations and mixed-tag stations are allowed through
 - Active streams only (last-checked alive)
 - Prefer stations with genre and language metadata
 - All languages and regions included
@@ -305,7 +305,7 @@ Settings open as a modal overlay (tap → info overlay → settings icon). Music
 - Station Filter (country + canonical genre picker, 14 genres) ✅
 - Station Search (name search with direct play) ✅
 - Theme picker (Drift, Minimal, Aurora, Neon, Alchemy) ✅
-- High Quality Only toggle (320kbps+, default on) ✅
+- High Quality Only toggle (320kbps+, default off) ✅
 - Sleep Timer picker (15 / 30 / 60 min) ✅
 
 **Plus section (locked):**
@@ -345,11 +345,12 @@ A minimal one-time overlay introduces the gestures without interrupting the expe
 - Never shown again after dismissal ✅
 
 **Visual design:**
-- Four hint labels arranged around the centre of the screen:
+- Five hint labels arranged around the centre of the screen:
   - ← **next station**
   - → **previous station**
-  - ↓ **save station**
-  - · **tap** (centre, for the info overlay)
+  - ↑ **favorites** (upper centre)
+  - · **tap** (mid centre)
+  - ↓ **save station** (lower centre)
 - Low-opacity white (~0.6) — visualization remains visible underneath ✅
 - No buttons, no "Got it" prompt
 - Fade-in 0.4s, fade-out 0.5s ✅
@@ -385,7 +386,7 @@ A single non-consumable IAP surfaced in Settings only. No prompts, no banners, n
 | Background playback | ✅ | ✅ |
 | All haptics | ✅ | ✅ |
 | Default visualization (Drift theme) | ✅ | ✅ |
-| Stream quality | 128kbps+ | ✅ 320kbps+ filter toggle (default on), HQ badge in overlay |
+| Stream quality | 64kbps+ | ✅ 320kbps+ filter toggle (default off), HQ badge in overlay |
 | Visualization themes | — | ✅ Drift (default), Minimal, Aurora, Neon, Alchemy |
 | Home screen widget | — | ✅ now playing — station, track, HQ badge, play state, country/genre, station color gradient |
 | Sleep timer | — | ✅ 15 / 30 / 60 min |
