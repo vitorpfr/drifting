@@ -373,6 +373,7 @@ A single non-consumable IAP surfaced in Settings only. No prompts, no banners, n
 - Price shown live from App Store Connect ✅
 - After purchase: upgrade prompt replaced with feature list — never shown again ✅
 - Restore purchase link available for users reinstalling the app ✅
+- Privacy policy: https://vitorpfr.github.io/drifting/privacy.html (required by App Store for apps with IAP)
 - Purchase celebration: haptic + "Welcome to Plus ♥" toast ✅
 
 **Feature split:**
