@@ -71,7 +71,7 @@ iOS is the primary platform, built in native Swift to deliver the best possible 
 - Analyzer watchdog: if visualization silent while playing, restarts analyzer stream every 3s ✅
 - Analyzer/audio sync: frequency data gated on `playerState == .playing` ✅
 - Tap to retry while idle ✅
-- Auto-resume current station on network recovery ⚠️ — reconnection after wifi returns is partially working; edge cases remain
+- Auto-resume current station on network recovery ✅
 
 ---
 
