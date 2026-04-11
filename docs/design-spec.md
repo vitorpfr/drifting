@@ -56,7 +56,7 @@ iOS is the primary platform, built in native Swift to deliver the best possible 
 - All languages and regions included
 
 **Stream reliability — discovery flow:**
-- On station selection, attempt to connect. Retry up to 3 times before advancing to the next candidate.
+- On station selection, attempt to connect. Retry up to 2 times before advancing to the next candidate.
 - Auto-advance after 3 failed retries is not counted as a recommendation signal.
 - If a stream drops mid-session: listening time before the drop is discarded and no signal is recorded ✅. The station is deprioritized for the remainder of the session ✅.
 
@@ -66,8 +66,8 @@ iOS is the primary platform, built in native Swift to deliver the best possible 
 **Handle connectivity issues ⚠️**
 - "connecting" label appears during loading state (after wordmark fades out) ✅
 - No-connection overlay (wifi.slash) shown when network is unavailable ✅
-- Stall watchdog: AVPlayer stall detected via `timeControlStatus`; retries after 15s ✅
-- Load timeout: 10s per attempt to catch hung connections ✅
+- Stall watchdog: AVPlayer stall detected via `timeControlStatus`; retries after 5s ✅
+- Load timeout: 4s per attempt to catch hung connections ✅
 - Analyzer watchdog: if visualization silent while playing, restarts analyzer stream every 3s ✅
 - Analyzer/audio sync: frequency data gated on `playerState == .playing` ✅
 - Tap to retry while idle ✅
@@ -147,7 +147,7 @@ The full-screen visualization is the only visible element by default. All intera
 - The mnemonic is intentional: swipe down to store, swipe up to recall ✅
 
 **Tap — info overlay:**
-- Auto-dismisses after 3 seconds. Re-triggered on station change, track change, and on return from any sheet. ✅
+- Auto-dismisses after 5 seconds. Re-triggered on station change, track change, and on return from any sheet. ✅
 - **Top row (right-aligned):** share button · settings button ✅
 - **Bottom row (left to right):** search icon · filter icon · AirPlay button · play/pause button ✅
   - Search and filter icons are hidden (opacity 0, non-interactive) for non-Plus users so AirPlay and play/pause never shift position ✅
@@ -173,7 +173,7 @@ Haptics are implemented using Core Haptics for maximum expressiveness. Two indep
 | Swipe down (save, new) | Triple escalating pulse — soft → medium → strong |
 | Swipe down (already saved) | Single light tap |
 | Button tap (play/pause, settings) | Light tap |
-| Swipe up | Reserved |
+| Swipe up | Light tap — opening favorites shelf |
 
 **Beat-synced haptics (off by default):**
 - The app pulses haptics in sync with the detected beat using Core Haptics' precise timing API ✅
