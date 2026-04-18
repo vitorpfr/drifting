@@ -1,6 +1,6 @@
 # Drifting — Product Design Spec
 
-**Date:** 2026-04-07
+**Date:** 2026-04-18
 **Status:** Active
 **Supersedes:** design-spec.md (v1, 2026-03-22), design-spec-v2.md (2026-04-03)
 
@@ -32,15 +32,16 @@ Drifting is a passive music discovery app. The user opens it, music starts. Ther
 
 ## 2. Platform Strategy ✅
 
-iOS is the primary platform, built in native Swift to deliver the best possible haptic and audio experience. Web and Android are deferred to future versions.
+iOS and iPadOS are the primary platforms, built in native Swift to deliver the best possible haptic and audio experience. Web and Android are deferred to future versions.
 
 | Platform | Tech | Priority |
 |---|---|---|
-| iOS | Native Swift | Current — primary |
+| iPhone | Native Swift | Current — primary |
+| iPad | Native Swift | Current — supported ✅ |
 | Web | React + Vite | Future |
 | Android | Native Kotlin | Future |
 
-**Haptics are iOS-only.** The web app has no haptic feedback.
+**Haptics are iOS/iPadOS-only.** The web app has no haptic feedback.
 
 ---
 
@@ -72,6 +73,7 @@ iOS is the primary platform, built in native Swift to deliver the best possible 
 - Analyzer/audio sync: frequency data gated on `playerState == .playing` ✅
 - Tap to retry while idle ✅
 - Auto-resume current station on network recovery ✅
+- Network recovery does not auto-skip a playing/rebuffering station — only resumes if playback had fully stopped; AVPlayer handles `.waitingToPlayAtSpecifiedRate` on its own ✅
 
 ---
 
@@ -142,8 +144,10 @@ The full-screen visualization is the only visible element by default. All intera
 - Swipe up from the main screen slides up a bottom sheet showing saved stations ✅
 - Tapping a station plays it immediately and dismisses the sheet ✅
 - Swipe-to-delete for management ✅
+- Drag to reorder rows; doing so auto-switches sort order to "Custom" (persisted across sessions) ✅
+- Sort options: Saved (insertion order) · Custom (drag order) · A–Z · Country · Genre ✅
+- Each row shows station name + "Country · Genre" subtitle ✅
 - The current station is visually highlighted with a `speaker.wave.2.fill` icon ✅
-- Section header: "Saved stations" ✅
 - The mnemonic is intentional: swipe down to store, swipe up to recall ✅
 
 **Tap — info overlay:**
@@ -176,7 +180,9 @@ Haptics are implemented using Core Haptics for maximum expressiveness. Two indep
 | Swipe up | Light tap — opening favorites shelf |
 
 **Beat-synced haptics (off by default):**
-- The app pulses haptics in sync with the detected beat using Core Haptics' precise timing API ✅
+- Pulses haptics with the bass groove using per-frame onset detection (frame-to-frame bass attack measurement) ✅
+- Conservative thresholds (attack > 0.18, bass floor > 0.40, 400ms cooldown) — targets a "groove-following" pulse rather than per-kick precision; the analyzer runs on a separate HTTP connection so exact beat alignment is not achievable ✅
+- Sharpness modulated by treble level: low treble → deep thud; high treble → sharp crack ✅
 - **Off by default** — user must enable in settings ✅
 - User-controllable intensity slider (visible only when enabled) ✅
 - Can be fully disabled ✅
@@ -294,6 +300,9 @@ Settings open as a modal overlay (tap → info overlay → settings icon). Music
 - Battery Saving toggle — limits visualization to 60fps and disables all haptics ✅
   - Automatically enabled when the device is in Low Power Mode; toggle is greyed out with an explanatory note ✅
   - Resets to off when Low Power Mode is disabled ✅
+- Audio Only toggle (free) — pauses the Metal renderer and stops the audio analyzer entirely; a static radial gradient in the station's color identity is shown instead ✅
+  - Saves significant battery on long listening sessions ✅
+  - Visualization resumes instantly when toggled off ✅
 
 **Haptics (iOS only):**
 - Command Haptics toggle (on by default) — controls gesture and button haptics ✅
@@ -406,9 +415,9 @@ A single non-consumable IAP surfaced in Settings only. No prompts, no banners, n
 
 ---
 
-### macOS / iPad companion app (future)
+### macOS companion app (future)
 
-A separate App Store listing (~$4.99–$7.99) serving the ambient background music use case at a desk. Separate product, not related to Plus.
+A separate App Store listing (~$4.99–$7.99) serving the ambient background music use case at a desk. Separate product, not related to Plus. iPad is now part of the main app listing.
 
 ---
 
