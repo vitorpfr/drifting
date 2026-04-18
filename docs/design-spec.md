@@ -32,16 +32,19 @@ Drifting is a passive music discovery app. The user opens it, music starts. Ther
 
 ## 2. Platform Strategy ✅
 
-iOS and iPadOS are the primary platforms, built in native Swift to deliver the best possible haptic and audio experience. Web and Android are deferred to future versions.
+iOS and iPadOS are the primary platforms, built in native Swift to deliver the best possible haptic and audio experience. macOS is supported via Mac Catalyst (same binary, Universal Purchase). Web and Android are deferred to future versions.
 
 | Platform | Tech | Priority |
 |---|---|---|
 | iPhone | Native Swift | Current — primary |
 | iPad | Native Swift | Current — supported ✅ |
+| Mac | Mac Catalyst (same binary) | Current — supported ✅ |
 | Web | React + Vite | Future |
 | Android | Native Kotlin | Future |
 
-**Haptics are iOS/iPadOS-only.** The web app has no haptic feedback.
+**Haptics are iOS/iPadOS-only.** The Haptics section is hidden in Settings on Mac. The Mac app has no haptic feedback.
+
+**Universal Purchase:** A single App Store listing covers iPhone, iPad, and Mac. Users who buy Plus on iOS get it on Mac too.
 
 ---
 
@@ -152,15 +155,36 @@ The full-screen visualization is the only visible element by default. All intera
 
 **Tap — info overlay:**
 - Auto-dismisses after 5 seconds. Re-triggered on station change, track change, and on return from any sheet. ✅
+- **On Mac: always visible** — no tap-to-show, no auto-dismiss. ✅
 - **Top row (right-aligned):** share button · settings button ✅
 - **Bottom row (left to right):** search icon · filter icon · AirPlay button · play/pause button ✅
   - Search and filter icons are hidden (opacity 0, non-interactive) for non-Plus users so AirPlay and play/pause never shift position ✅
+  - AirPlay button hidden on Mac (not applicable) ✅
   - Filter icon uses a filled accent color tint when a filter is active ✅
 - **Station info (bottom-left):**
   - Current track title (if available) ✅
   - Station name · `heart.fill` if saved · `HQ` badge if bitrate ≥ 320kbps · `waveform` icon if playing ✅
   - Location (state + country) ✅
   - Genre (first tag, title-cased) ✅
+
+**Mac keyboard shortcuts & on-screen controls ✅**
+
+On Mac Catalyst, swipe gestures are replaced by keyboard shortcuts and on-screen arrow buttons. These are Mac-only and do not affect iOS/iPadOS.
+
+| Input | Action |
+|---|---|
+| Right arrow key | Next station |
+| Left arrow key | Previous station |
+| Down arrow key | Save station (or close favorites shelf if open) |
+| Up arrow key | Open favorites shelf |
+| Space | Play / Pause |
+
+**On-screen edge-center arrows:** Four chevron buttons sit at the center of each screen edge (←·→·↑·↓). They are very dim (white, low opacity) and styled to match the rest of the UI. Clicking one performs the same action as its keyboard counterpart.
+
+- Pressing a keyboard shortcut also triggers the corresponding on-screen button's press animation, giving visual feedback that the keystroke registered ✅
+- On-screen buttons show a grey background flash + scale-down on click/keypress ✅
+- Favorites shelf: arrow-down key/button closes the shelf when it is open (instead of saving) ✅
+- Shortcuts are also accessible via the Mac menu bar under **Station** ✅
 
 ---
 
@@ -235,7 +259,10 @@ Colors are station-specific and deterministic: derived from a hash of the statio
 **Performance:**
 - Targets native display refresh rate (120fps) by default ✅
 - Throttles to 60fps when Battery Saving mode is active ✅
-- Rendering pauses when app is backgrounded ✅
+- Rendering pauses when app is backgrounded (iOS) or window is minimized/inactive (Mac) ✅
+
+**Mac widescreen:**
+- Particle grid is aspect-ratio-aware (`16 * aspectRatio` columns) so dots remain round on widescreen monitors; no distortion ✅
 
 ---
 
@@ -304,7 +331,7 @@ Settings open as a modal overlay (tap → info overlay → settings icon). Music
   - Saves significant battery on long listening sessions ✅
   - Visualization resumes instantly when toggled off ✅
 
-**Haptics (iOS only):**
+**Haptics (iOS only — hidden on Mac):**
 - Command Haptics toggle (on by default) — controls gesture and button haptics ✅
 - Beat Sync Haptics toggle (off by default) ✅
 - Haptic intensity slider (visible only when Beat Sync is enabled) ✅
@@ -415,9 +442,19 @@ A single non-consumable IAP surfaced in Settings only. No prompts, no banners, n
 
 ---
 
-### macOS companion app (future)
+### macOS ✅
 
-A separate App Store listing (~$4.99–$7.99) serving the ambient background music use case at a desk. Separate product, not related to Plus. iPad is now part of the main app listing.
+Drifting runs on macOS via Mac Catalyst — the same binary as iOS. The Mac app is distributed through the same App Store listing using Universal Purchase, so iOS and Mac users share Plus unlocks automatically.
+
+**Mac-specific behaviour:**
+- Info overlay is always visible (no tap-to-show/auto-dismiss)
+- Keyboard shortcuts via menu bar (Station menu) and direct key bindings
+- On-screen edge-center chevron buttons replace swipe gestures
+- Haptics section hidden in Settings (not applicable)
+- Particle visualization is aspect-ratio-corrected for widescreen
+- Renderer pauses when window is minimized or app resigns active (battery)
+- Right-click to delete saved stations in Favorites (swipe-to-delete not available with a mouse)
+- AirPlay button hidden (not applicable on Mac)
 
 ---
 
@@ -442,4 +479,4 @@ Data is shared via App Group (`group.com.vitorfreitas.drifting`) UserDefaults. A
 - **Android app** — native Kotlin
 - **CarPlay support**
 - **Advanced haptic choreography** — multi-parameter patterns evolving with music structure (verse/chorus/drop detection)
-- **Web app** — React + Vite secondary platform (or Mac desktop app)
+- **Web app** — React + Vite secondary platform
