@@ -34,10 +34,12 @@ Tracks everything needed to submit to the App Store. In-app features are tracked
 Required: iPhone 6.7" (iPhone 17 Pro Max simulator). Optional: 6.1", iPad.
 
 - [ ] Enable "Always Show Station Info" in Settings before capturing
-- [ ] Screenshot 1 — Visualization playing with info overlay visible (vivid reactive state)
+- [ ] Unlock Plus via StoreKit sandbox before capturing screenshots 3 (Settings app → Developer → StoreKit)
+- [ ] Screenshot 1 — Visualization playing with info overlay visible (default Drift theme, free experience)
 - [ ] Screenshot 2 — Favorites shelf open (save 2–3 stations first, then swipe up)
-- [ ] Screenshot 3 — Settings Plus upgrade card (feature list + price visible)
-- [ ] Screenshot 4 — Widget on home screen *(optional, real device)*
+- [ ] Screenshot 3 — Visualization with a Plus theme (Aurora or Neon — visually striking)
+- [ ] Screenshot 4 — Settings Plus upgrade card (feature list + price visible)
+- [ ] Screenshot 5 — Widget on home screen *(optional, real device)*
 - [ ] Upload screenshots to ASC (iPhone 6.7" slot)
 - [ ] Attach one screenshot to IAP review section in ASC
 
