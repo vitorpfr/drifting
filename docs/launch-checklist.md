@@ -6,48 +6,57 @@ Tracks everything needed to submit to the App Store. In-app features are tracked
 
 ## App Store Connect Setup
 
-- [ ] Create app in ASC — Bundle ID `com.vitorfreitas.drifting`, category: Music
-- [ ] Create IAP product — ID `com.vitorfreitas.drifting.plus`, non-consumable, **Tier 5 ($4.99)**, add display name and description
-- [ ] Fill out age rating questionnaire (expected: 4+)
-- [ ] Fill out Privacy Nutrition Label — select "Data Not Collected" and complete the form
-- [ ] Add `ITSAppUsesNonExemptEncryption = NO` to Info.plist (export compliance)
+- [x] Create app in ASC — app name "Drifting Radio", Bundle ID `com.vitorfreitas.drifting`, category: Music
+- [x] Create IAP product — ID `com.vitorfreitas.drifting.plus`, non-consumable, **Tier 5 ($4.99)**, display name and description added
+- [x] Fill out age rating questionnaire (4+)
+- [x] Fill out Privacy Nutrition Label — Data Not Collected
+- [x] Enable Mac availability (Universal Purchase via Mac Catalyst)
+- [x] DSA compliance — selected "not a trader"
+- [x] Tax and banking setup (W-8BEN filed, bank account added)
+
+## Code
+
+- [x] Add `ITSAppUsesNonExemptEncryption = NO` to Info.plist (export compliance)
+- [x] Add `PrivacyInfo.xcprivacy` privacy manifest (UserDefaults declared with CA92.1 + 1C8F.1)
+- [x] Set `CFBundleDisplayName` and `CFBundleName` to "Drifting" (fixes home screen label and Mac menu bar)
 
 ## App Metadata
 
-- [ ] App name: "Drifting"
-- [ ] Subtitle (≤30 chars) — e.g. "Radio discovery, visualized"
-- [ ] Description
-- [ ] Keywords (≤100 chars, comma-separated — critical for search ranking)
+- [ ] Subtitle (≤30 chars): "Radio discovery, visualized"
+- [ ] Description (drafted — see submission plan)
+- [ ] Keywords (97 chars): `internet radio,music discovery,radio stations,visualizer,world radio,radio player,streaming,genre`
 - [ ] Support URL
-- [ ] Marketing URL (optional)
-- [ ] What's New text (first release: can be brief)
+- [ ] What's New text: "First release."
+- [ ] Marketing URL (optional — skip for v1)
 
 ## Screenshots
 
-Required: at least iPhone 6.7" (15 Pro Max). Optional but recommended: 6.1", iPad.
+Required: iPhone 6.7" (iPhone 17 Pro Max simulator). Optional: 6.1", iPad.
 
-- [ ] Capture 3–10 screenshots at 6.7" — suggested moments:
-  - Visualization playing (show a vivid reactive state)
-  - Info overlay open (station name, track, location, genre)
-  - Favorites shelf
-  - Settings — Plus section (shows feature list + price)
-  - Widget on home screen (if you want to show it)
-- [ ] Add optional text overlays / captions to screenshots (common practice, not required)
+- [ ] Enable "Always Show Station Info" in Settings before capturing
+- [ ] Screenshot 1 — Visualization playing with info overlay visible (vivid reactive state)
+- [ ] Screenshot 2 — Favorites shelf open (save 2–3 stations first, then swipe up)
+- [ ] Screenshot 3 — Settings Plus upgrade card (feature list + price visible)
+- [ ] Screenshot 4 — Widget on home screen *(optional, real device)*
+- [ ] Upload screenshots to ASC (iPhone 6.7" slot)
+- [ ] Attach one screenshot to IAP review section in ASC
 
 ## Build & Testing
 
-- [ ] Verify app icon renders correctly on a real device home screen
-- [ ] TestFlight internal test build — install on real device
+- [ ] Archive build in Xcode (Product → Archive, destination: Any iOS Device arm64)
+- [ ] Upload to App Store Connect via Organizer
+- [ ] Add yourself as TestFlight internal tester and install on real device
+- [ ] Verify app icon renders correctly on home screen
 - [ ] Verify IAP flow end-to-end in StoreKit sandbox (price appears, purchase succeeds, Plus unlocks, restore works)
 - [ ] Test on at least two device sizes (small iPhone + large iPhone)
-- [ ] Verify background audio and lock screen controls work on device
-- [ ] Verify widget appears and updates correctly on device
+- [ ] Verify background audio and lock screen controls work
+- [ ] Verify widget appears and updates correctly
 
 ## Submission
 
-- [ ] Upload build via Xcode → Organizer (or `xcodebuild archive`)
-- [ ] Select build in ASC and attach to the version
-- [ ] Add review notes: "This is a one-time tip IAP, not a subscription. The app plays live internet radio streams — an active internet connection is required to test."
+- [ ] Attach build to version 1.0 in ASC
+- [ ] Enter all metadata (subtitle, description, keywords, support URL, What's New)
+- [ ] Add review notes (see submission plan for exact text)
 - [ ] Submit for review
 
 ## Post-Launch
