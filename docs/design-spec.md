@@ -1,7 +1,7 @@
 # Drifting — Product Design Spec
 
-**Date:** 2026-04-18
-**Status:** Active
+**Date:** 2026-04-25
+**Status:** Active — build 5 submitted for App Review
 **Supersedes:** design-spec.md (v1, 2026-03-22), design-spec-v2.md (2026-04-03)
 
 ---
@@ -32,15 +32,15 @@ Drifting is a passive music discovery app. The user opens it, music starts. Ther
 
 ## 2. Platform Strategy ✅
 
-iOS and iPadOS are the primary platforms, built in native Swift to deliver the best possible haptic and audio experience. macOS is supported via Mac Catalyst (same binary, Universal Purchase). Web and Android are deferred to future versions.
+iPhone is the primary platform, built in native Swift. Mac is supported via Mac Catalyst (same binary, Universal Purchase) — this covers the desktop use case without a separate web app. Android is a potential future platform given its larger radio listener base, but deferred until iOS has traction.
 
 | Platform | Tech | Priority |
 |---|---|---|
 | iPhone | Native Swift | Current — primary |
 | iPad | Native Swift | Current — supported ✅ |
 | Mac | Mac Catalyst (same binary) | Current — supported ✅ |
-| Web | React + Vite | Future |
-| Android | Native Kotlin | Future |
+| Android | Native Kotlin | Future — large radio audience, feasible rewrite |
+| Web | — | Not planned — Mac Catalyst covers the desktop use case |
 
 **Haptics are iOS/iPadOS-only.** The Haptics section is hidden in Settings on Mac. The Mac app has no haptic feedback.
 
@@ -115,7 +115,7 @@ No audio transition — music keeps playing uninterrupted. ✅ Full save burst a
 - While a station is playing, the app silently pre-selects and begins buffering the next candidate ✅
 - On swipe left, the transition begins immediately using the pre-buffered stream ✅
 - Swipe right plays back through a history stack; no pre-buffering needed ✅
-- Pre-buffer has a 20% chance of picking a saved station, otherwise uses the full weighted taste profile for pre-selection ✅
+- Pre-buffer has a 10% chance of picking a saved station (matching the main selection rate), otherwise uses the full weighted taste profile for pre-selection ✅
 
 ---
 
@@ -260,7 +260,7 @@ The full-screen Metal canvas reacts to the music in real time using frequency an
 
 **Visualization themes (Plus):**
 
-All Plus themes (except Drift) are selectable from Settings → Plus → Theme picker. ✅
+All themes are selectable from Settings → Playback → Theme (accessible to all users; locked themes are dimmed with a lock icon). ✅
 
 | Theme | Description | Status |
 |---|---|---|
@@ -322,13 +322,13 @@ Positive signals are not duration-modulated. Signal weighting only applies once 
 
 **Station selection — three phases:**
 
-1. **Cold start** (0–15 interactions) — random selection with genre diversity: avoids picking a station with the same primary genre as the previous one ✅
+1. **Cold start** (0–15 interactions) — music stations only (talk, news, sports, religion excluded); random selection with genre diversity: avoids picking a station with the same primary genre as the previous one ✅
 2. **Learning phase** (16–75 interactions) — weighted random selection using accumulated taste profile scores ✅
 3. **Mature profile** (76+ interactions) — stronger exploitation of preferences (score exponent amplified), same weighted random mechanism ✅
 
-In all phases, 15% of picks are fully random (exploration) to surface genuinely new stations and prevent filter bubble. ✅
+In all phases, 15% of picks are fully random (exploration) to surface genuinely new stations and prevent filter bubble. During cold start, exploration is also restricted to music stations. ✅
 
-An additional 20% of picks inject a saved station from the user's favorites list, ensuring loved stations resurface naturally. ✅
+An additional 10% of picks inject a saved station from the user's favorites list, ensuring loved stations resurface naturally. A dedup window of 3 prevents the same favorite from repeating consecutively. ✅
 
 **What gets learned:**
 - Genre / music style (via station tags) ✅
@@ -357,6 +357,7 @@ Settings open as a modal overlay (tap → info overlay → settings icon). Music
 - Audio Only toggle (free) — pauses the Metal renderer and stops the audio analyzer entirely; a static radial gradient in the station's color identity is shown instead ✅
   - Saves significant battery on long listening sessions ✅
   - Visualization resumes instantly when toggled off ✅
+- Theme — opens a live-preview bottom sheet showing all five themes in a horizontal scrollable row; tapping a theme applies it immediately; locked themes are dimmed with a lock icon and show a "Available with Drifting Plus" hint; accessible to all users ✅
 
 **Haptics (iOS only — hidden on Mac):**
 - Command Haptics toggle (on by default) — controls gesture and button haptics ✅
@@ -364,10 +365,9 @@ Settings open as a modal overlay (tap → info overlay → settings icon). Music
 - Haptic intensity slider (visible only when Beat Sync is enabled) ✅
 
 **Plus section (unlocked):**
-- Listening Stats ✅
+- Listening Stats — total listening time, top genres/countries, top stations with country/genre subtitle; tapping a station plays it and dismisses settings ✅
 - Station Filter (country + canonical genre picker, 14 genres) ✅
 - Station Search (name search with direct play) ✅
-- Theme picker (Drift, Minimal, Aurora, Neon, Alchemy) ✅
 - High Quality Only toggle (320kbps+, default off) ✅
 - Sleep Timer picker (15 / 30 / 60 min) ✅
 
@@ -412,7 +412,7 @@ A minimal one-time overlay introduces the gestures without interrupting the expe
   - ← **next station**
   - → **previous station**
   - ↑ **favorites** (upper centre)
-  - · **tap** (mid centre)
+  - · **hold** (mid centre)
   - ↓ **save station** (lower centre)
 - Low-opacity white (~0.6) — visualization remains visible underneath ✅
 - No buttons, no "Got it" prompt
@@ -437,7 +437,7 @@ A single non-consumable IAP surfaced in Settings only. No prompts, no banners, n
 - Price shown live from App Store Connect ✅
 - After purchase: upgrade prompt replaced with feature list — never shown again ✅
 - Restore purchase link available for users reinstalling the app ✅
-- Privacy policy: https://vitorpfr.github.io/drifting/privacy.html (required by App Store for apps with IAP)
+- Privacy policy: https://vitorpfr.github.io/drifting/docs/privacy.html (required by App Store for apps with IAP)
 - Purchase celebration: haptic + "Welcome to Plus ♥" toast ✅
 
 **Feature split:**
@@ -453,7 +453,7 @@ A single non-consumable IAP surfaced in Settings only. No prompts, no banners, n
 | Visualization themes | — | ✅ Drift (default), Minimal, Aurora, Neon, Alchemy |
 | Home screen widget | — | ✅ now playing — station, track, HQ badge, play state, country/genre, station color gradient |
 | Sleep timer | — | ✅ 15 / 30 / 60 min |
-| Listening stats | — | ✅ total time, top genres/countries |
+| Listening stats | — | ✅ total time, top genres/countries, top stations (tappable — plays station) |
 | Station filter | — | ✅ country filter + curated canonical genre picker (14 genres) |
 | Station search | — | ✅ name search with direct play |
 
@@ -499,11 +499,30 @@ Data is shared via App Group (`group.com.vitorfreitas.drifting`) UserDefaults. A
 
 ## 15. Future Considerations
 
-- **Tempo / energy level learning** — factor stream energy into recommendation weights
-- **Time-of-day learning** — mellow mornings, energetic evenings
-- **Account + sync** — optional sign-up to sync taste profile and saved stations across devices
-- **Social features** — following friends (station sharing via deep link is implemented ✅)
-- **Android app** — native Kotlin
-- **CarPlay support**
+### v1.1 — ship before driving external traffic
+
+- **iPad info overlay layout** *(known bug)* — track/artist info not visible on iPad due to iPhone-specific positioning; needs layout fix for iPad screen geometry
+- **Station blocking** — "never play this station" permanent filter; different from skipping — strong negative signal; add to a blocked IDs list and exclude from selection; will be one of the most common early requests (ad-heavy stations, jarring genres)
+- **Persistent listening history** — currently session-only; keep last 20–30 stations across sessions so users don't lose stations they heard but didn't save
+- **Station logos / artwork** — Radio Browser provides favicon/logo URLs for many stations; show small station logo in info overlay; makes the app feel more complete alongside other radio apps
+
+### v1.x — based on early user feedback
+
+- **CarPlay support** — radio is fundamentally a car use case; requires a separate CarPlay scene but audio engine is already correct; unlocks a large natural audience
+- **Optional genre seed on first launch** — single optional screen on first launch with 4–6 genre chips (dismissible); improves cold start dramatically without violating zero-friction; users who skip get current cold start, users who pick genres get a better day one
+- **Time-of-day learning** — mellow mornings, energetic evenings; makes the app feel genuinely intelligent without extra user action
+- **Lock screen widget** — iOS 16+ lock screen widget showing station name + waveform icon; low effort, widget infrastructure already exists
+- **Tempo / energy level learning** — factor stream energy into recommendation weights; more nuanced than genre alone
+- **v2 tap effects** — random effect selection on hold release: gravity pull, beat amplification, colour explosion, vortex (see Section 7 for full descriptions)
+- **More visualization themes** — 1–2 new Plus themes per major update; gives existing Plus users ongoing value and free users a reason to upgrade
+- **Mac — expanded keyboard shortcuts** — power-user shortcuts beyond the current navigation set: `S` to open station search, `F` to open favorites shelf and navigate it with arrow keys, `B` to toggle battery saving, number keys to jump to a saved station by position; makes the Mac version feel like a native app rather than a ported one
+
+### Long term
+
+- **Account + sync** — optional sign-up to sync taste profile and saved stations across devices; high effort, requires backend; defer until there's clear multi-device demand from users
 - **Advanced haptic choreography** — multi-parameter patterns evolving with music structure (verse/chorus/drop detection)
-- **Web app** — React + Vite secondary platform
+- **Social features** — station sharing via deep link is already implemented ✅; anything beyond that (following friends, shared listening) is a different product; correctly deferred
+
+### Separate platform track
+
+- **Android** — native Kotlin; radio listener base is significantly larger on Android; visualization rewritten in GLSL/Vulkan, recommendation engine and UI are direct ports; target start ~2–3 months post-iOS launch once feedback is incorporated
