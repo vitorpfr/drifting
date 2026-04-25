@@ -18,7 +18,7 @@ Drifting is a passive music discovery app. The user opens it, music starts. Ther
 
 **Guiding principles:**
 - **Zero friction to music** — audio starts within 2 seconds of opening the app on a good connection; visualization begins immediately regardless of stream state
-- **The visualization IS the UI** — no controls, labels, or chrome on screen by default
+- **The visualization IS the UI** — a minimal always-visible overlay shows station info and controls at the edges; the center of the screen is unobstructed visualization
 - **Every gesture feels intentional** — swipes are weighted with haptics and animation so actions feel satisfying, not accidental
 - **The app gets smarter silently** — preference learning happens in the background, never interrupting the experience
 - **Local-first** — no account, no login, no barrier. Preferences live on device.
@@ -129,7 +129,7 @@ The full-screen visualization is the only visible element by default. All intera
 | Swipe right | Previous station (history stack) | Mild positive |
 | Swipe down | Save / bookmark — station keeps playing | Strongest positive |
 | Swipe up | Open favorites shelf (bottom sheet) | None |
-| Tap | Show info overlay (quick tap) / trigger visualization effect (hold ≥ 0.1s) | None |
+| Tap | Start playback if idle; trigger visualization effect on hold (≥ 0.1s) | None |
 
 **History stack:**
 - The app maintains an in-memory ordered list of stations played in the session ✅
@@ -153,9 +153,18 @@ The full-screen visualization is the only visible element by default. All intera
 - The current station is visually highlighted with a `speaker.wave.2.fill` icon ✅
 - The mnemonic is intentional: swipe down to store, swipe up to recall ✅
 
-**Tap — info overlay:**
-- Auto-dismisses after 5 seconds. Re-triggered on station change, track change, and on return from any sheet. ✅
-- **On Mac: always visible** — no tap-to-show, no auto-dismiss. ✅
+**Info overlay:** ✅
+- Always visible on all platforms (iOS, iPadOS, Mac) — no tap-to-show, no auto-dismiss.
+- **Top row (right-aligned):** share button · settings button ✅
+- **Bottom row (left to right):** search icon · filter icon · AirPlay button · play/pause button ✅
+  - Search and filter icons are hidden (opacity 0, non-interactive) for non-Plus users so AirPlay and play/pause never shift position ✅
+  - AirPlay button hidden on Mac (not applicable) ✅
+  - Filter icon uses a filled accent color tint when a filter is active ✅
+- **Station info (bottom-left):**
+  - Current track title (if available) ✅
+  - Station name · `heart.fill` if saved · `HQ` badge if bitrate ≥ 320kbps · `waveform` icon if playing ✅
+  - Location (state + country) ✅
+  - Genre (first tag, title-cased) ✅
 
 **Tap — visualization interaction (hold):** ✅
 - Hold anywhere on screen for ≥ 0.1s to trigger an interactive visualization effect.
@@ -168,17 +177,7 @@ The full-screen visualization is the only visible element by default. All intera
   - **Neon:** sharp main ring + two echo rings (fits Neon's layered ring motif)
   - **Alchemy:** plasma wave expands with a color-blended echo
 - **Haptic pattern:** charging pulses escalate in rate and intensity during the hold (slow/soft → rapid/strong); release fires a two-tap impact scaled by how long you held.
-- Quick taps (< 0.1s) pass through to the existing tap behavior (show overlay / start playback if idle). ✅
-- **Top row (right-aligned):** share button · settings button ✅
-- **Bottom row (left to right):** search icon · filter icon · AirPlay button · play/pause button ✅
-  - Search and filter icons are hidden (opacity 0, non-interactive) for non-Plus users so AirPlay and play/pause never shift position ✅
-  - AirPlay button hidden on Mac (not applicable) ✅
-  - Filter icon uses a filled accent color tint when a filter is active ✅
-- **Station info (bottom-left):**
-  - Current track title (if available) ✅
-  - Station name · `heart.fill` if saved · `HQ` badge if bitrate ≥ 320kbps · `waveform` icon if playing ✅
-  - Location (state + country) ✅
-  - Genre (first tag, title-cased) ✅
+- Quick taps (< 0.1s) start playback if idle; otherwise no action (overlay is always visible). ✅
 
 **Mac keyboard shortcuts & on-screen controls ✅**
 
