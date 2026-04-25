@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drifting — Radio discovery, visualized</title>
+  <meta name="description" content="Drifting is a new way to discover music radio. Open the app, music starts." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080808;
+      --surface: #111111;
+      --border: #222222;
+      --text: #f0f0f0;
+      --muted: #888888;
+      --accent: #a07af0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* Hero */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 80px 24px 64px;
+    }
+
+    .hero-icon {
+      width: 96px;
+      height: 96px;
+      border-radius: 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      font-size: 20px;
+      color: var(--muted);
+      max-width: 480px;
+      margin-bottom: 36px;
+    }
+
+    .appstore-badge img {
+      height: 48px;
+      opacity: 0.9;
+      transition: opacity 0.2s;
+    }
+    .appstore-badge img:hover { opacity: 1; }
+
+    /* Screenshots */
+    .screenshots {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      padding: 0 24px 80px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .screenshots img {
+      height: 560px;
+      width: auto;
+      border-radius: 36px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.7);
+      flex-shrink: 0;
+    }
+
+    /* Features */
+    .features {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .features h2 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 32px;
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .feature {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .feature-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .feature h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .feature p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* Plus */
+    .plus {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .plus-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .plus-card h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .plus-card .price {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .plus-features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 0;
+    }
+
+    .plus-features li {
+      font-size: 15px;
+      color: var(--muted);
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .plus-features li:last-child { border-bottom: none; }
+
+    .plus-features li::before {
+      content: "✦";
+      color: var(--accent);
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    footer a:hover { color: var(--text); }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 36px; }
+      .hero p { font-size: 17px; }
+      .screenshots img { height: 420px; border-radius: 28px; }
+      .feature-list { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="hero">
+    <img class="hero-icon" src="icon.png" alt="Drifting app icon" />
+    <h1>Drifting</h1>
+    <p>Radio discovery, visualized. Open the app, music starts.</p>
+    <a class="appstore-badge" href="https://apps.apple.com/app/drifting-radio/id6745452706" target="_blank" rel="noopener">
+      <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" />
+    </a>
+  </section>
+
+  <section class="screenshots">
+    <img src="screenshots/screenshot1.png" alt="Drifting visualization" />
+    <img src="screenshots/screenshot2.png" alt="Alchemy theme" />
+    <img src="screenshots/screenshot3.png" alt="Saved stations" />
+    <img src="screenshots/screenshot4.png" alt="Drifting Plus" />
+  </section>
+
+  <section class="features">
+    <h2>How it works</h2>
+    <div class="feature-list">
+      <div class="feature">
+        <div class="feature-icon">◀▶</div>
+        <h3>Swipe to explore</h3>
+        <p>Left to skip, right to go back. The app learns your taste over time.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">◈</div>
+        <h3>Live visualization</h3>
+        <p>A full-screen animation that reacts to the music in real time.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">♥</div>
+        <h3>Save favorites</h3>
+        <p>Swipe down to save a station. Swipe up to browse your collection.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⊕</div>
+        <h3>World radio</h3>
+        <p>Thousands of stations from around the world, playing live.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="plus">
+    <div class="plus-card">
+      <h2>Drifting Plus</h2>
+      <p class="price">One-time purchase · $4.99</p>
+      <ul class="plus-features">
+        <li>Visualization themes — Minimal, Aurora, Neon, Alchemy</li>
+        <li>Home screen widget showing what's playing</li>
+        <li>Station filter — narrow by country or genre</li>
+        <li>Station search — find stations by name</li>
+        <li>High quality only — filter for 320kbps+ streams</li>
+        <li>Listening stats — total time, top genres and countries</li>
+        <li>Sleep timer — 15, 30, or 60 minutes</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 Vitor Freitas</span>
+    <span>
+      <a href="docs/privacy.html">Privacy Policy</a>
+      &nbsp;·&nbsp;
+      <a href="mailto:vitorfr@gmail.com">Support</a>
+    </span>
+  </footer>
+
+</body>
+</html>
