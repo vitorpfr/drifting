@@ -129,7 +129,7 @@ The full-screen visualization is the only visible element by default. All intera
 | Swipe right | Previous station (history stack) | Mild positive |
 | Swipe down | Save / bookmark — station keeps playing | Strongest positive |
 | Swipe up | Open favorites shelf (bottom sheet) | None |
-| Tap | Show info overlay | None |
+| Tap | Show info overlay (quick tap) / trigger visualization effect (hold ≥ 0.1s) | None |
 
 **History stack:**
 - The app maintains an in-memory ordered list of stations played in the session ✅
@@ -156,6 +156,19 @@ The full-screen visualization is the only visible element by default. All intera
 **Tap — info overlay:**
 - Auto-dismisses after 5 seconds. Re-triggered on station change, track change, and on return from any sheet. ✅
 - **On Mac: always visible** — no tap-to-show, no auto-dismiss. ✅
+
+**Tap — visualization interaction (hold):** ✅
+- Hold anywhere on screen for ≥ 0.1s to trigger an interactive visualization effect.
+- Hold duration (0.1s → 1.5s) controls effect intensity — quick hold fires a subtle effect, full charge fires a dramatic one.
+- **Charging visual:** a ring contracts inward toward center as energy builds; a soft glow grows at the center. Each theme has its own charge animation that fits its visual language.
+- **Release effect (v1 — shockwave):** a tight bright ring expands from center outward across the screen, with a softer echo ring behind it. Theme variants:
+  - **Drift:** main ring + one echo ring
+  - **Minimal:** single clean thin ring, no echo (stays sparse)
+  - **Aurora:** radial brightness wave ripples across the light bands
+  - **Neon:** sharp main ring + two echo rings (fits Neon's layered ring motif)
+  - **Alchemy:** plasma wave expands with a color-blended echo
+- **Haptic pattern:** charging pulses escalate in rate and intensity during the hold (slow/soft → rapid/strong); release fires a two-tap impact scaled by how long you held.
+- Quick taps (< 0.1s) pass through to the existing tap behavior (show overlay / start playback if idle). ✅
 - **Top row (right-aligned):** share button · settings button ✅
 - **Bottom row (left to right):** search icon · filter icon · AirPlay button · play/pause button ✅
   - Search and filter icons are hidden (opacity 0, non-interactive) for non-Plus users so AirPlay and play/pause never shift position ✅
@@ -202,6 +215,8 @@ Haptics are implemented using Core Haptics for maximum expressiveness. Two indep
 | Swipe down (already saved) | Single light tap |
 | Button tap (play/pause, settings) | Light tap |
 | Swipe up | Light tap — opening favorites shelf |
+| Hold press (charging) | Escalating pulses — slow/soft at start, rapid/strong at full charge (1.5s) |
+| Hold press release | Two-tap impact (rounded thump + sharp echo), both scaled to hold duration |
 
 **Beat-synced haptics (off by default):**
 - Pulses haptics with the bass groove using per-frame onset detection (frame-to-frame bass attack measurement) ✅
@@ -241,6 +256,8 @@ The full-screen Metal canvas reacts to the music in real time using frequency an
 | Skip direction sweep | Visualization sweeps in the swipe direction on skip | ✅ |
 | Save burst | 8 particles explode radially outward + expanding ring, fades over ~1.5s | ✅ |
 | Already-saved flash | Soft center glow (lower intensity than save burst, no particles) | ✅ |
+| Hold charge | Contracting ring + center glow build up while user holds; theme-specific variants | ✅ |
+| Shockwave release | Ring expands from center outward on hold release; intensity scales with hold duration; theme-specific variants | ✅ |
 
 **Visualization themes (Plus):**
 
@@ -255,6 +272,17 @@ All Plus themes (except Drift) are selectable from Settings → Plus → Theme p
 | Alchemy | Domain-warped plasma (WMP Alchemy-inspired) — fluid organic look. | ✅ |
 
 Colors are station-specific and deterministic: derived from a hash of the station ID (`ColorIdentity`). ✅
+
+**Tap interaction — v2 ideas (not yet implemented):**
+
+v1 always fires the shockwave. In v2, each tap could randomly pick one of the following effects, keeping the hold mechanic the same:
+
+| Effect | Description |
+|---|---|
+| Gravity pull | Particles collapse toward center on release, then spring outward — like a breath in and out |
+| Beat amplification | One exaggerated beat pulse fires — as if you told the visualization "go harder on this one"; ties to the current bass envelope |
+| Color explosion | The station's palette bursts outward from the release point as a saturated color bloom; especially striking on Aurora and Alchemy |
+| Vortex | Particles spiral inward on hold, then unwind outward on release; intensity controls spin speed |
 
 **Performance:**
 - Targets native display refresh rate (120fps) by default ✅
