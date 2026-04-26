@@ -19,7 +19,7 @@ The gradient fallback is rendered immediately on station change. If a favicon UR
 
 - Add `faviconURL: URL?` — optional field
 - CodingKey: `"favicon"`
-- Decoding: decode as optional `String`; convert to `URL` only if non-empty and valid — otherwise `nil`
+- Decoding: decode as optional `String`; convert to `URL` only if non-empty, parseable, and scheme is `http` or `https` — otherwise `nil`. This prevents `file://`, `javascript:`, and other non-web schemes from being passed to `AsyncImage`.
 - Encoding: use `encodeIfPresent` — omit the key entirely when nil; decoder handles missing key → nil, so cached JSON without the field remains valid
 
 ---
@@ -58,5 +58,6 @@ No other layout changes.
 - `test_station_validFaviconURL_decoded` — a JSON payload with a valid `favicon` string decodes to a non-nil `faviconURL`
 - `test_station_emptyFaviconString_decodesToNil` — an empty `"favicon": ""` decodes to `nil`
 - `test_station_missingFaviconKey_decodesToNil` — a JSON payload without the `favicon` key decodes to `nil`
+- `test_station_nonHttpFaviconURL_decodesToNil` — a `favicon` with a `file://` or `javascript:` scheme decodes to `nil`
 
 No tests for `StationLogoView` — pure SwiftUI view with no logic; `AsyncImage` loading is not unit-testable.
