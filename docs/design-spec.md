@@ -504,7 +504,7 @@ Data is shared via App Group (`group.com.vitorfreitas.drifting`) UserDefaults. A
 - **iPad info overlay layout** *(known bug)* — track/artist info not visible on iPad due to iPhone-specific positioning; needs layout fix for iPad screen geometry
 - **Station blocking** — "never play this station" permanent filter; different from skipping — strong negative signal; add to a blocked IDs list and exclude from selection; will be one of the most common early requests (ad-heavy stations, jarring genres)
 - **Persistent listening history** — currently session-only; keep last 20–30 stations across sessions so users don't lose stations they heard but didn't save
-- **Station logos / artwork** — Radio Browser provides favicon/logo URLs for many stations; show small station logo in info overlay; makes the app feel more complete alongside other radio apps
+- **Station logos / artwork** ✅ — 32pt rounded tile to the left of the station name in InfoOverlay; loads favicon from Radio Browser `favicon` field (http/https only, validated at decode time); falls back to a radial gradient derived from the station's `ColorIdentity` (same visual as lock screen / Dynamic Island artwork); gradient shown immediately, favicon fades in once loaded
 - **Saved stations limit** ✅ — free users can save up to 10 stations; Plus users get unlimited; when the limit is hit, a light haptic fires and a tappable "Save limit reached" toast appears (tapping opens Settings to the Plus section); grandfathering: on first launch of v1.1, if `favorites.json` exists on disk the user is an upgrade from v1.0 and `hasGrandfatheredUnlimitedSaves` is written as `true` (treated as Plus for save limits, invisibly); fresh installs get `false`
 
 ### v1.x — based on early user feedback
