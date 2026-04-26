@@ -155,16 +155,14 @@ The full-screen visualization is the only visible element by default. All intera
 
 **Info overlay:** ✅
 - Always visible on all platforms (iOS, iPadOS, Mac) — no tap-to-show, no auto-dismiss.
-- **Top row (right-aligned):** share button · settings button ✅
-- **Bottom row (left to right):** search icon · filter icon · AirPlay button · play/pause button ✅
-  - Search and filter icons are hidden (opacity 0, non-interactive) for non-Plus users so AirPlay and play/pause never shift position ✅
+- **Top row (right-aligned):** share button · AirPlay button · settings button ✅
   - AirPlay button hidden on Mac (not applicable) ✅
+- **Station info block (bottom-left):** ✅
+  - 32pt station logo tile (favicon loaded from Radio Browser; radial gradient fallback using `ColorIdentity`) · track title (if available, indented to align with station name) · station name · `heart.fill` if saved · `HQ` badge if bitrate ≥ 320kbps · `waveform` icon if playing · location (state + country) · genre (first tag, title-cased; always occupies a line to keep position stable when absent)
+  - Genre and track title grow upward when present — favicon/name/country are always at a fixed position regardless of whether either is showing ✅
+- **Bottom row (right-aligned):** search icon · filter icon · play/pause button ✅
+  - Search and filter icons are hidden (opacity 0, non-interactive) for non-Plus users so play/pause never shifts position ✅
   - Filter icon uses a filled accent color tint when a filter is active ✅
-- **Station info (bottom-left):**
-  - Current track title (if available) ✅
-  - Station name · `heart.fill` if saved · `HQ` badge if bitrate ≥ 320kbps · `waveform` icon if playing ✅
-  - Location (state + country) ✅
-  - Genre (first tag, title-cased) ✅
 
 **Tap — visualization interaction (hold):** ✅
 - Hold anywhere on screen for ≥ 0.1s to trigger an interactive visualization effect.
@@ -298,7 +296,8 @@ v1 always fires the shockwave. In v2, each tap could randomly pick one of the fo
 Audio continues playing when the app is backgrounded or the device is locked.
 
 - `AVAudioSession` configured with `.playback` category ✅
-- Lock screen controls (play/pause, skip, station name, current track) via `MPNowPlayingInfoCenter` and `MPRemoteCommandCenter` ✅
+- Lock screen / Control Center controls (play/pause, skip, station name, current track) via `MPNowPlayingInfoCenter` and `MPRemoteCommandCenter` ✅
+- Lock screen / Control Center artwork: `ColorIdentity` radial gradient rendered immediately; if the station has a favicon URL, it is fetched asynchronously and composited aspect-fill over the gradient ✅
 - If a stream drops while backgrounded, the app silently retries up to 3 times and advances to the next pre-buffered candidate ✅
 
 ---
@@ -504,7 +503,7 @@ Data is shared via App Group (`group.com.vitorfreitas.drifting`) UserDefaults. A
 - **iPad info overlay layout** *(known bug)* — track/artist info not visible on iPad due to iPhone-specific positioning; needs layout fix for iPad screen geometry
 - **Station blocking** — "never play this station" permanent filter; different from skipping — strong negative signal; add to a blocked IDs list and exclude from selection; will be one of the most common early requests (ad-heavy stations, jarring genres)
 - **Persistent listening history** — currently session-only; keep last 20–30 stations across sessions so users don't lose stations they heard but didn't save
-- **Station logos / artwork** ✅ — 32pt rounded tile to the left of the station name in InfoOverlay; loads favicon from Radio Browser `favicon` field (http/https only, validated at decode time); falls back to a radial gradient derived from the station's `ColorIdentity` (same visual as lock screen / Dynamic Island artwork); gradient shown immediately, favicon fades in once loaded
+- **Station logos / artwork** ✅ — 32pt rounded tile in InfoOverlay (top-left of the station info block); loads favicon from Radio Browser `favicon` field (http/https only, validated at decode time); falls back to a `ColorIdentity` radial gradient; gradient shown immediately, favicon fades in once loaded. Same favicon also appears in lock screen / Control Center artwork (aspect-fill over gradient, fetched async after station change). Station search field autofocuses on open so keyboard appears immediately ✅
 - **Saved stations limit** ✅ — free users can save up to 10 stations; Plus users get unlimited; when the limit is hit, a light haptic fires and a tappable "Save limit reached" toast appears (tapping opens Settings to the Plus section); grandfathering: on first launch of v1.1, if `favorites.json` exists on disk the user is an upgrade from v1.0 and `hasGrandfatheredUnlimitedSaves` is written as `true` (treated as Plus for save limits, invisibly); fresh installs get `false`
 
 ### v1.x — based on early user feedback
