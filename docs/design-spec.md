@@ -445,7 +445,7 @@ A single non-consumable IAP surfaced in Settings only. No prompts, no banners, n
 | Feature | Free | Plus |
 |---|---|---|
 | Full catalog + recommendation engine | ✅ | ✅ |
-| All gestures, saving, favorites | ✅ | ✅ |
+| All gestures, saving, favorites | ✅ (up to 10 saves) | ✅ Unlimited saves |
 | Background playback | ✅ | ✅ |
 | All haptics | ✅ | ✅ |
 | Default visualization (Drift theme) | ✅ | ✅ |
@@ -505,6 +505,7 @@ Data is shared via App Group (`group.com.vitorfreitas.drifting`) UserDefaults. A
 - **Station blocking** — "never play this station" permanent filter; different from skipping — strong negative signal; add to a blocked IDs list and exclude from selection; will be one of the most common early requests (ad-heavy stations, jarring genres)
 - **Persistent listening history** — currently session-only; keep last 20–30 stations across sessions so users don't lose stations they heard but didn't save
 - **Station logos / artwork** — Radio Browser provides favicon/logo URLs for many stations; show small station logo in info overlay; makes the app feel more complete alongside other radio apps
+- **Saved stations limit** ✅ — free users can save up to 10 stations; Plus users get unlimited; when the limit is hit, a light haptic fires and a tappable "Save limit reached" toast appears (tapping opens Settings to the Plus section); grandfathering: on first launch of v1.1, if `favorites.json` exists on disk the user is an upgrade from v1.0 and `hasGrandfatheredUnlimitedSaves` is written as `true` (treated as Plus for save limits, invisibly); fresh installs get `false`
 
 ### v1.x — based on early user feedback
 
