@@ -500,16 +500,27 @@ Data is shared via App Group (`group.com.vitorfreitas.drifting`) UserDefaults. A
 
 ### v1.1 — ship before driving external traffic
 
-- **iPad info overlay layout** *(known bug)* — track/artist info not visible on iPad due to iPhone-specific positioning; needs layout fix for iPad screen geometry
-- **Station blocking** — "never play this station" permanent filter; different from skipping — strong negative signal; add to a blocked IDs list and exclude from selection; will be one of the most common early requests (ad-heavy stations, jarring genres)
-- **Persistent listening history** — currently session-only; keep last 20–30 stations across sessions so users don't lose stations they heard but didn't save
+- **iPad info overlay layout** ✅ *(fixed)* — track/artist info now visible on iPad (`.frame(maxWidth: .infinity, maxHeight: .infinity)` on InfoOverlay body so Spacer fills correctly)
 - **Station logos / artwork** ✅ — 32pt rounded tile in InfoOverlay (top-left of the station info block); loads favicon from Radio Browser `favicon` field (http/https only, validated at decode time); falls back to a `ColorIdentity` radial gradient; gradient shown immediately, favicon fades in once loaded. Same favicon also appears in lock screen / Control Center artwork (aspect-fill over gradient, fetched async after station change). Station search field autofocuses on open so keyboard appears immediately ✅
 - **Saved stations limit** ✅ — free users can save up to 10 stations; Plus users get unlimited; when the limit is hit, a light haptic fires and a tappable "Save limit reached" toast appears (tapping opens Settings to the Plus section); grandfathering: on first launch of v1.1, if `favorites.json` exists on disk the user is an upgrade from v1.0 and `hasGrandfatheredUnlimitedSaves` is written as `true` (treated as Plus for save limits, invisibly); fresh installs get `false`
+- **Station blocking** ❌ — "never play this station" permanent filter; different from skipping — strong negative signal; add to a blocked IDs list and exclude from selection; will be one of the most common early requests (ad-heavy stations, jarring genres)
+- **Persistent listening history** ❌ — currently session-only; keep last 20–30 stations across sessions so users don't lose stations they heard but didn't save
+
+**Activation (first-session quality):**
+
+- **Optional genre seed on first launch** ✅ — floating chip card in the lower third of the screen on first fresh install only; 8 genre chips in two rows of 4 (Ambient · Classical · Electronic · Hip-Hop · Indie/Rock · Jazz · Latin · Pop); max 3 selections; each pick applies 2 save-equivalent positive weight signals across the genre's tag set via `TasteProfile.applySeed`; deselecting a chip removes the weight (`removeSeed`, floored at zero); dismissed via × button — dismissal sets `hasShownGenreSeed = true` permanently (not reset by Reset Taste Profile); v1.0 upgrade users (detected by presence of `favorites.json`) get the flag pre-set to `true` and skip the card. Music plays in the background throughout; seed influences station #2 onward, first station is unaffected.
+- **Locale-aware cold start** ❌ — for the first 3 station picks on a fresh install, soft bias toward stations matching the device's country/language; reduces "first station feels alien" bounce risk; mechanism is a weighting nudge inside `StationSelector`, not a hard filter
+- **First-station quality boost** ❌ — first 1–3 stations on a fresh install restricted to high-uptime + favicon-present + good-metadata stations; the new station-logo UI in v1.1 makes a missing favicon visibly degrade the InfoOverlay, so this guards the first impression
+
+**Plus conversion (no prompts during playback):**
+
+- **Listening receipt teaser in Settings (free users)** ✅ — the "Listening Stats" row in the free user Plus feature list shows a passive teaser string sourced from `TasteProfile.teaserString` (e.g. *"47 stations across 12 countries"*); pluralizes correctly for 0/1/N stations and 0/1/N countries; nil when fewer than 1 station played ≥5s, so no zeros appear; the row is tappable and opens the Plus purchase flow; Plus users see the existing full Listening Stats view (NavigationLink, unchanged)
+- **Cumulative listening milestone marker** ❌ — at first crossing of 1h / 5h / 20h total listening time, a small static badge appears in the Plus section of Settings (e.g. "You've listened for 5 hours of Drifting · Plus has more →"); visible only when Settings is opened — never a popup or playback prompt
+- **Save-streak softener** ❌ — at 5+ saves out of the 10-save free cap, a small grey "X of 10 saves used" line appears under the saved-stations list in Settings; plants awareness of the limit early so hitting it isn't a surprise wall
 
 ### v1.x — based on early user feedback
 
 - **CarPlay support** — radio is fundamentally a car use case; requires a separate CarPlay scene but audio engine is already correct; unlocks a large natural audience
-- **Optional genre seed on first launch** — single optional screen on first launch with 4–6 genre chips (dismissible); improves cold start dramatically without violating zero-friction; users who skip get current cold start, users who pick genres get a better day one
 - **Time-of-day learning** — mellow mornings, energetic evenings; makes the app feel genuinely intelligent without extra user action
 - **Lock screen widget** — iOS 16+ lock screen widget showing station name + waveform icon; low effort, widget infrastructure already exists
 - **Tempo / energy level learning** — factor stream energy into recommendation weights; more nuanced than genre alone
