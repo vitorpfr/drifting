@@ -290,8 +290,8 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 | Country normalization | ✅ Done |
 | Ambient visualization | ✅ Done |
 | Audio-reactive visualization | ✅ Built, ⚠️ force-disabled |
-| Gesture model | ❌ Not started |
-| Next / prev station + audio fades | ❌ Not started |
+| Gesture model | ⚠️ Partial — left/right nav only (buttons + keyboard + swipe); up/down deferred |
+| Next / prev station + audio fades | ✅ Next/prev done; audio fades not started |
 | Recommendation engine | ❌ Not started |
 | Save + saved shelf | ❌ Not started |
 | Info overlay controls (play/pause, settings) | ❌ Not started |
