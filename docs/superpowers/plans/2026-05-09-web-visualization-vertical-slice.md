@@ -6,7 +6,7 @@
 
 **Architecture:** React + Vite wraps a full-screen Three.js canvas. Two renderer classes (`AmbientRenderer`, `AudioReactiveRenderer`) share a single `WebGLRenderer`. `VisualizationManager` picks the active renderer from the station's `corsFriendly` flag and falls back to ambient if the `AnalyserNode` stays silent for 2 seconds. A standalone Node script (`buildCatalog.ts`) precomputes the catalog by HEAD-checking ~2000 filtered radio-browser.info stations for CORS.
 
-**Tech Stack:** React 18, Vite 5, TypeScript, Three.js r168, Vitest, tsx (for running scripts)
+**Tech Stack:** React 19, Vite 6, TypeScript, Three.js r184, Vitest 4, tsx (for running scripts)
 
 > **Vertical slice scope:** Mode switching in this plan is an instant cut (no fade). The 300 ms cross-fade transition described in the spec is deferred to the next iteration. Everything else in the spec is implemented.
 
