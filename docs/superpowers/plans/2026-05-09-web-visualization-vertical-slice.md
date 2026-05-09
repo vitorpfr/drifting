@@ -57,7 +57,7 @@ drifting-web/
 - Create: `src/App.tsx` (minimal placeholder)
 - Create: `src/index.css`
 
-- [ ] **Step 1: Run Vite scaffolding inside drifting-web**
+- [x] **Step 1: Run Vite scaffolding inside drifting-web**
 
 ```bash
 cd /Users/vitorfreitas/dev/drifting-web
@@ -68,7 +68,7 @@ When prompted about the existing directory, choose **"Ignore files and continue"
 
 Expected: Vite generates `package.json`, `vite.config.ts`, `tsconfig.json`, `index.html`, `src/`.
 
-- [ ] **Step 2: Install dependencies**
+- [x] **Step 2: Install dependencies**
 
 ```bash
 npm install
@@ -76,7 +76,7 @@ npm install three
 npm install -D @types/three vitest @vitest/coverage-v8 @testing-library/react @testing-library/jest-dom jsdom tsx
 ```
 
-- [ ] **Step 3: Configure Vitest in vite.config.ts**
+- [x] **Step 3: Configure Vitest in vite.config.ts**
 
 Replace the generated `vite.config.ts` with:
 
@@ -94,7 +94,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 4: Create test setup file**
+- [x] **Step 4: Create test setup file**
 
 Create `src/test-setup.ts`:
 
@@ -102,7 +102,7 @@ Create `src/test-setup.ts`:
 import '@testing-library/jest-dom'
 ```
 
-- [ ] **Step 5: Add tsconfig.node.json for scripts**
+- [x] **Step 5: Add tsconfig.node.json for scripts**
 
 Create `tsconfig.node.json`:
 
@@ -120,7 +120,7 @@ Create `tsconfig.node.json`:
 }
 ```
 
-- [ ] **Step 6: Replace src/index.css**
+- [x] **Step 6: Replace src/index.css**
 
 ```css
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -128,7 +128,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
 #root { width: 100%; height: 100%; }
 ```
 
-- [ ] **Step 7: Replace src/App.tsx with a minimal placeholder**
+- [x] **Step 7: Replace src/App.tsx with a minimal placeholder**
 
 ```tsx
 export default function App() {
@@ -136,7 +136,7 @@ export default function App() {
 }
 ```
 
-- [ ] **Step 8: Verify dev server starts**
+- [x] **Step 8: Verify dev server starts**
 
 ```bash
 npm run dev
@@ -144,7 +144,7 @@ npm run dev
 
 Expected: Vite prints a localhost URL. Opening it in the browser shows "Drifting — loading…" on a black background. Stop the server with Ctrl+C.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add -A
@@ -159,7 +159,7 @@ git commit -m "feat: scaffold React + Vite + Three.js + Vitest"
 - Create: `scripts/buildCatalog.ts`
 - Create: `public/catalog.json` (generated output — do not hand-write this file)
 
-- [ ] **Step 1: Create scripts/buildCatalog.ts**
+- [x] **Step 1: Create scripts/buildCatalog.ts**
 
 ```typescript
 import { writeFileSync, mkdirSync } from 'fs'
@@ -284,7 +284,7 @@ async function main() {
 main().catch(err => { console.error(err); process.exit(1) })
 ```
 
-- [ ] **Step 2: Write the failing test**
+- [x] **Step 2: Write the failing test**
 
 Create `scripts/buildCatalog.test.ts`:
 
@@ -311,7 +311,7 @@ describe('isMusicStation', () => {
 })
 ```
 
-- [ ] **Step 3: Run the test to verify it fails**
+- [x] **Step 3: Run the test to verify it fails**
 
 ```bash
 npx vitest run scripts/buildCatalog.test.ts
@@ -319,7 +319,7 @@ npx vitest run scripts/buildCatalog.test.ts
 
 Expected: FAIL — `isMusicStation is not a function` (the script hasn't exported it yet in a testable form… wait, it was exported in Step 1). Expected: **PASS** on first run since the export is already there. If it fails for another reason, investigate before continuing.
 
-- [ ] **Step 4: Run the catalog script against a small sample**
+- [x] **Step 4: Run the catalog script against a small sample**
 
 ```bash
 npx tsx scripts/buildCatalog.ts --limit=50
@@ -336,7 +336,7 @@ Written to public/catalog.json
 
 Open `public/catalog.json` and verify it is a JSON array of objects with fields: `stationuuid`, `name`, `url`, `tags`, `country`, `bitrate`, `corsFriendly`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add scripts/buildCatalog.ts scripts/buildCatalog.test.ts public/catalog.json
@@ -350,7 +350,7 @@ git commit -m "feat: add catalog precompute script with CORS detection"
 **Files:**
 - Create: `src/types.ts`
 
-- [ ] **Step 1: Create src/types.ts**
+- [x] **Step 1: Create src/types.ts**
 
 ```typescript
 export interface Station {
@@ -376,7 +376,7 @@ export interface Color {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/types.ts
@@ -391,7 +391,7 @@ git commit -m "feat: add shared TypeScript types"
 - Create: `src/catalog.ts`
 - Create: `src/catalog.test.ts`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `src/catalog.test.ts`:
 
@@ -424,7 +424,7 @@ describe('getRandomStation', () => {
 })
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 ```bash
 npx vitest run src/catalog.test.ts
@@ -432,7 +432,7 @@ npx vitest run src/catalog.test.ts
 
 Expected: FAIL — `getRandomStation is not a function`
 
-- [ ] **Step 3: Implement src/catalog.ts**
+- [x] **Step 3: Implement src/catalog.ts**
 
 ```typescript
 import type { Station } from './types'
@@ -448,7 +448,7 @@ export function getRandomStation(stations: Station[]): Station {
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 ```bash
 npx vitest run src/catalog.test.ts
@@ -456,7 +456,7 @@ npx vitest run src/catalog.test.ts
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/catalog.ts src/catalog.test.ts
@@ -471,7 +471,7 @@ git commit -m "feat: add catalog loader"
 - Create: `src/visualization/genreColors.ts`
 - Create: `src/visualization/genreColors.test.ts`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `src/visualization/genreColors.test.ts`:
 
@@ -520,7 +520,7 @@ describe('getGenreColor', () => {
 })
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 ```bash
 npx vitest run src/visualization/genreColors.test.ts
@@ -528,7 +528,7 @@ npx vitest run src/visualization/genreColors.test.ts
 
 Expected: FAIL — `getGenreColor is not a function`
 
-- [ ] **Step 3: Implement src/visualization/genreColors.ts**
+- [x] **Step 3: Implement src/visualization/genreColors.ts**
 
 ```typescript
 import type { Color } from '../types'
@@ -551,7 +551,7 @@ export function getGenreColor(tags: string): Color {
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 ```bash
 npx vitest run src/visualization/genreColors.test.ts
@@ -559,7 +559,7 @@ npx vitest run src/visualization/genreColors.test.ts
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/visualization/genreColors.ts src/visualization/genreColors.test.ts
@@ -574,7 +574,7 @@ git commit -m "feat: add genre-to-color palette mapping"
 - Create: `src/audioPlayer.ts`
 - Create: `src/audioPlayer.test.ts`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `src/audioPlayer.test.ts`:
 
@@ -653,7 +653,7 @@ describe('AudioPlayer', () => {
 })
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 ```bash
 npx vitest run src/audioPlayer.test.ts
@@ -661,7 +661,7 @@ npx vitest run src/audioPlayer.test.ts
 
 Expected: FAIL — `AudioPlayer is not a constructor`
 
-- [ ] **Step 3: Implement src/audioPlayer.ts**
+- [x] **Step 3: Implement src/audioPlayer.ts**
 
 ```typescript
 import type { FrequencyBuckets } from './types'
@@ -742,7 +742,7 @@ function avg(data: Uint8Array, start: number, end: number): number {
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 ```bash
 npx vitest run src/audioPlayer.test.ts
@@ -750,7 +750,7 @@ npx vitest run src/audioPlayer.test.ts
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/audioPlayer.ts src/audioPlayer.test.ts
@@ -766,7 +766,7 @@ git commit -m "feat: add AudioPlayer with AnalyserNode and frequency buckets"
 
 No unit test for this task — GLSL shader execution requires a GPU context not available in jsdom. Visual correctness is verified in Task 10 (dev server smoke test).
 
-- [ ] **Step 1: Create src/visualization/AmbientRenderer.ts**
+- [x] **Step 1: Create src/visualization/AmbientRenderer.ts**
 
 ```typescript
 import * as THREE from 'three'
@@ -885,7 +885,7 @@ export class AmbientRenderer {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/visualization/AmbientRenderer.ts
@@ -901,7 +901,7 @@ git commit -m "feat: add AmbientRenderer (WebGL flow field shader)"
 
 No unit test — same reason as AmbientRenderer. Visual correctness verified in Task 10.
 
-- [ ] **Step 1: Create src/visualization/AudioReactiveRenderer.ts**
+- [x] **Step 1: Create src/visualization/AudioReactiveRenderer.ts**
 
 ```typescript
 import * as THREE from 'three'
@@ -1006,7 +1006,7 @@ export class AudioReactiveRenderer {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/visualization/AudioReactiveRenderer.ts
@@ -1021,7 +1021,7 @@ git commit -m "feat: add AudioReactiveRenderer (WebGL particle system)"
 - Create: `src/visualization/VisualizationManager.ts`
 - Create: `src/visualization/VisualizationManager.test.ts`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `src/visualization/VisualizationManager.test.ts`:
 
@@ -1099,7 +1099,7 @@ describe('VisualizationManager.loadStation', () => {
 })
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 ```bash
 npx vitest run src/visualization/VisualizationManager.test.ts
@@ -1107,7 +1107,7 @@ npx vitest run src/visualization/VisualizationManager.test.ts
 
 Expected: FAIL — `VisualizationManager is not a constructor`
 
-- [ ] **Step 3: Implement src/visualization/VisualizationManager.ts**
+- [x] **Step 3: Implement src/visualization/VisualizationManager.ts**
 
 ```typescript
 import * as THREE from 'three'
@@ -1204,7 +1204,7 @@ export class VisualizationManager {
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 ```bash
 npx vitest run src/visualization/VisualizationManager.test.ts
@@ -1212,7 +1212,7 @@ npx vitest run src/visualization/VisualizationManager.test.ts
 
 Expected: PASS
 
-- [ ] **Step 5: Run the full test suite**
+- [x] **Step 5: Run the full test suite**
 
 ```bash
 npx vitest run
@@ -1220,7 +1220,7 @@ npx vitest run
 
 Expected: All tests pass across `catalog.test.ts`, `audioPlayer.test.ts`, `genreColors.test.ts`, `VisualizationManager.test.ts`, `buildCatalog.test.ts`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/visualization/VisualizationManager.ts src/visualization/VisualizationManager.test.ts
@@ -1235,7 +1235,7 @@ git commit -m "feat: add VisualizationManager with mode selection and silence fa
 - Modify: `src/App.tsx`
 - Modify: `src/main.tsx`
 
-- [ ] **Step 1: Update src/main.tsx**
+- [x] **Step 1: Update src/main.tsx**
 
 ```tsx
 import { StrictMode } from 'react'
@@ -1250,7 +1250,7 @@ createRoot(document.getElementById('root')!).render(
 )
 ```
 
-- [ ] **Step 2: Replace src/App.tsx with the vertical slice**
+- [x] **Step 2: Replace src/App.tsx with the vertical slice**
 
 ```tsx
 import { useEffect, useRef, useState } from 'react'
@@ -1352,7 +1352,7 @@ export default function App() {
 }
 ```
 
-- [ ] **Step 3: Run the full test suite one more time**
+- [x] **Step 3: Run the full test suite one more time**
 
 ```bash
 npx vitest run
@@ -1360,7 +1360,7 @@ npx vitest run
 
 Expected: All tests pass.
 
-- [ ] **Step 4: Start the dev server and smoke-test**
+- [x] **Step 4: Start the dev server and smoke-test**
 
 ```bash
 npm run dev
@@ -1376,7 +1376,7 @@ Open the URL in a browser. Verify:
 
 If you see a WebGL context error, check that the canvas `ref` is attached before `VisualizationManager` is constructed (the `useEffect` dependency on `canvasRef.current` handles this).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/App.tsx src/main.tsx
