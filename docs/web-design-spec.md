@@ -286,15 +286,17 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 |---|---|
 | Launch experience | ✅ Done |
 | Burst animation | ✅ Done |
-| Station info overlay | ✅ Done |
+| Station info overlay | ✅ Done — includes ♥ badge when station is saved |
 | Country normalization | ✅ Done |
 | Ambient visualization | ✅ Done |
 | Audio-reactive visualization | ✅ Built, ⚠️ force-disabled |
-| Gesture model | ⚠️ Partial — left/right nav only (buttons + keyboard + swipe); up/down deferred |
-| Next / prev station + audio fades | ✅ Next/prev done; audio fades not started |
-| Recommendation engine | ❌ Not started |
-| Save + saved shelf | ❌ Not started |
-| Info overlay controls (play/pause, settings) | ❌ Not started |
+| Gesture model | ⚠️ Partial — all four directions + keyboard (←→↑↓ Space) + on-screen chevrons; swipe up/down done; hold effects deferred |
+| Next / prev station | ✅ Done — current audio/UI stays live during transition; "connecting…" shown in center |
+| Audio fades | ❌ Not started |
+| Save + saved shelf | ✅ Done — swipe-down/ArrowDown/↓ saves; swipe-up/ArrowUp/↑ opens shelf; IndexedDB persistence (cap 25); toast feedback; burst on save |
+| Play / pause | ✅ Done — Space key; AudioPlayer.pause/resume |
+| Recommendation engine | ⚠️ Partial — pure functions (`applySignal`, `selectNext`, all phases + saved injection) done and tested; IDB schema upgraded to v2 with `keyval` store; `useRecommendation` hook and App.tsx wiring remaining |
+| Info overlay controls (settings) | ❌ Not started |
 | PWA shell | ❌ Not started |
 | First-run tutorial | ❌ Not started |
 | Connectivity handling / retry | ❌ Not started |
