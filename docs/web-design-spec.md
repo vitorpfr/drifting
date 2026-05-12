@@ -286,7 +286,7 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 |---|---|
 | Launch experience | ✅ Done |
 | Burst animation | ✅ Done |
-| Station info overlay | ✅ Done — includes ♥ badge when station is saved |
+| Station info overlay | ✅ Done — favicon tile (genre gradient fallback, fades in on load), now-playing via ICY metadata (CORS stations only, polls every 30s), ♥ badge; name/country/favicon anchored; track title and genre float above/below without shifting |
 | Country normalization | ✅ Done |
 | Ambient visualization | ✅ Done |
 | Audio-reactive visualization | ✅ Built, ⚠️ force-disabled |
@@ -296,7 +296,7 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 | Save + saved shelf | ✅ Done — swipe-down/ArrowDown/↓ saves; swipe-up/ArrowUp/↑ opens shelf; IndexedDB persistence (cap 25); toast feedback; burst on save |
 | Play / pause | ✅ Done — Space key; AudioPlayer.pause/resume |
 | Recommendation engine | ✅ Done — pure functions, IDB schema (v2), `useRecommendation` hook, and App.tsx wiring all complete; signals recorded on skip/prev/save; dwell timer fires at 60s |
-| Info overlay controls (settings) | ❌ Not started |
+| Info overlay controls (settings) | ✅ Done — share button (copies URL to clipboard), settings gear (opens modal), play/pause toggle; modal has taste profile reset, audio-only toggle (pauses visualization), and clear saved stations |
 | PWA shell | ❌ Not started |
 | First-run tutorial | ❌ Not started |
 | Connectivity handling / retry | ❌ Not started |
