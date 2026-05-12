@@ -303,3 +303,4 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 | Renderer cross-fade (300ms) | ❌ Not started |
 | Tap shockwave / charge effects | ❌ Not started |
 | Ripple rings | ❌ Not started |
+| Station pre-loading | ❌ Not started — load next station in background while current is playing so navigation is instant; deep link share (generate `/?station=<uuid>` URL and handle on load) also deferred until routing exists |
