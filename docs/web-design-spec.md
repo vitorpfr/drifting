@@ -292,10 +292,10 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 | Audio-reactive visualization | ✅ Built, ⚠️ force-disabled |
 | Gesture model | ⚠️ Partial — all four directions + keyboard (←→↑↓ Space) + on-screen chevrons; swipe up/down done; hold effects deferred |
 | Next / prev station | ✅ Done — current audio/UI stays live during transition; "connecting…" shown in center |
-| Audio fades | ❌ Not started |
+| Audio fades | ✅ Done — 1s fade-in on station start; crossfade on navigation (old fades out 400ms while new fades in 1s, triggered only after new stream is ready to eliminate silence gaps) |
 | Save + saved shelf | ✅ Done — swipe-down/ArrowDown/↓ saves; swipe-up/ArrowUp/↑ opens shelf; IndexedDB persistence (cap 25); toast feedback; burst on save |
 | Play / pause | ✅ Done — Space key; AudioPlayer.pause/resume |
-| Recommendation engine | ⚠️ Partial — pure functions (`applySignal`, `selectNext`, all phases + saved injection) done and tested; IDB schema upgraded to v2 with `keyval` store; `useRecommendation` hook and App.tsx wiring remaining |
+| Recommendation engine | ✅ Done — pure functions, IDB schema (v2), `useRecommendation` hook, and App.tsx wiring all complete; signals recorded on skip/prev/save; dwell timer fires at 60s |
 | Info overlay controls (settings) | ❌ Not started |
 | PWA shell | ❌ Not started |
 | First-run tutorial | ❌ Not started |
