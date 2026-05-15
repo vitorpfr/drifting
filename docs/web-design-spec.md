@@ -290,13 +290,16 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 | Country normalization | ✅ Done |
 | Ambient visualization | ✅ Done |
 | Audio-reactive visualization | ✅ Built, ⚠️ force-disabled |
-| Gesture model | ⚠️ Partial — all four directions + keyboard (←→↑↓ Space) + on-screen chevrons; swipe up/down done; hold effects deferred |
+| Gesture model | ⚠️ Partial — all four directions + keyboard (←→↑↓ Space) + on-screen chevrons; swipe up/down done; hold effects deferred; touch swipe recognition in progress |
+| Any-key to start | ❌ Not started — on launch screen, any keypress should trigger playback (currently only tap/click works) |
+| Pre-load first station | ❌ Not started — background-load the first station before user interaction so playback starts instantly on tap/keypress; requires selecting a station at page load without playing it |
 | Next / prev station | ✅ Done — current audio/UI stays live during transition; "connecting…" shown in center |
 | Audio fades | ✅ Done — 1s fade-in on station start; crossfade on navigation (old fades out 400ms while new fades in 1s, triggered only after new stream is ready to eliminate silence gaps) |
 | Save + saved shelf | ✅ Done — swipe-down/ArrowDown/↓ saves; swipe-up/ArrowUp/↑ opens shelf; IndexedDB persistence (cap 25); toast feedback; burst on save |
 | Play / pause | ✅ Done — Space key; AudioPlayer.pause/resume |
 | Recommendation engine | ✅ Done — pure functions, IDB schema (v2), `useRecommendation` hook, and App.tsx wiring all complete; signals recorded on skip/prev/save; dwell timer fires at 60s |
 | Info overlay controls (settings) | ✅ Done — share button (copies URL to clipboard), settings gear (opens modal), play/pause toggle; modal has taste profile reset, audio-only toggle (pauses visualization), and clear saved stations |
+| Donation jar (Ko-fi link in Settings) | ❌ Not started — add when product is closer to done |
 | PWA shell | ❌ Not started |
 | First-run tutorial | ❌ Not started |
 | Connectivity handling / retry | ❌ Not started |
