@@ -301,7 +301,7 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 | Info overlay controls (settings) | ✅ Done — share button (copies URL to clipboard), settings gear (opens modal), play/pause toggle; modal has taste profile reset, audio-only toggle (pauses visualization), and clear saved stations |
 | Donation jar (Ko-fi link in Settings) | ❌ Not started — add when product is closer to done |
 | PWA shell | ❌ Not started |
-| First-run tutorial | ❌ Not started |
+| First-run tutorial | ✅ Done — `useFirstRunTutorial` hook (2s delay, 8s auto-dismiss, localStorage guard); `GestureTutorial` component; adapts labels for touch (swipe ← next) vs desktop (← next); hold hint included as placeholder; recommendation tagline "your taste profile builds as you listen"; dismissed by any goNext/goPrevious/save/shelf/playPause/share/audioOnly action |
 | Connectivity handling / retry | ❌ Not started |
 | Renderer cross-fade (300ms) | ❌ Not started |
 | Tap shockwave / charge effects | ❌ Not started |
