@@ -290,7 +290,7 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 | Country normalization | ✅ Done |
 | Ambient visualization | ✅ Done |
 | Audio-reactive visualization | ✅ Built, ⚠️ force-disabled |
-| Gesture model | ⚠️ Partial — all four directions + keyboard (←→↑↓ Space) + on-screen chevrons; swipe up/down done; hold effects deferred; touch swipe recognition in progress |
+| Gesture model | ✅ Done — all four directions + keyboard (←→↑↓ Space) + on-screen chevrons + touch swipe recognition (`useSwipeGesture` hook: 50px H / 80px V thresholds, left-edge dead zone, scroll prevention, pointer capture, flash feedback); hold effects deferred |
 | Any-key to start | ❌ Not started — on launch screen, any keypress should trigger playback (currently only tap/click works) |
 | Pre-load first station | ❌ Not started — background-load the first station before user interaction so playback starts instantly on tap/keypress; requires selecting a station at page load without playing it |
 | Next / prev station | ✅ Done — current audio/UI stays live during transition; "connecting…" shown in center |
