@@ -291,8 +291,8 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 | Ambient visualization | ✅ Done |
 | Audio-reactive visualization | ✅ Built, ⚠️ force-disabled |
 | Gesture model | ✅ Done — all four directions + keyboard (←→↑↓ Space) + on-screen chevrons + touch swipe recognition (`useSwipeGesture` hook: 50px H / 80px V thresholds, left-edge dead zone, scroll prevention, pointer capture, flash feedback); hold effects deferred |
-| Any-key to start | ❌ Not started — on launch screen, any keypress should trigger playback (currently only tap/click works) |
-| Pre-load first station | ❌ Not started — background-load the first station before user interaction so playback starts instantly on tap/keypress; requires selecting a station at page load without playing it |
+| Any-key to start | ✅ Done — any keypress (excluding modifier-only combos) on the launch screen triggers playback |
+| Pre-load first station | ✅ Done — on mount, catalog is fetched and first station stream is pre-connected (audio.src set, browser buffers stream); on first tap/keypress, play() reuses the pre-connected player without resetting the buffer |
 | Next / prev station | ✅ Done — current audio/UI stays live during transition; "connecting…" shown in center |
 | Audio fades | ✅ Done — 1s fade-in on station start; crossfade on navigation (old fades out 400ms while new fades in 1s, triggered only after new stream is ready to eliminate silence gaps) |
 | Save + saved shelf | ✅ Done — swipe-down/ArrowDown/↓ saves; swipe-up/ArrowUp/↑ opens shelf; IndexedDB persistence (cap 25); toast feedback; burst on save |
