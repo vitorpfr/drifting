@@ -304,7 +304,7 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 | PWA shell | ❌ Not started |
 | First-run tutorial | ✅ Done — `useFirstRunTutorial` hook (2s delay, 8s auto-dismiss, localStorage guard); `GestureTutorial` component; adapts labels for touch (swipe ← next) vs desktop (← prev / → next); hold hint included as placeholder; recommendation tagline "your taste profile builds as you listen"; dismissed by any goNext/goPrevious/save/shelf/playPause/share/audioOnly/settings action |
 | Connectivity handling / retry | ⚠️ Partial — initial load retries up to 3 stations on failure; clean error message ("Could not connect to a station. Tap to try again."); navigation failure no longer stops the current player; remaining: 4s load timeout, stall watchdog, auto-resume on network recovery |
-| Renderer cross-fade (300ms) | ❌ Not started |
+| Renderer cross-fade (300ms) | ✅ Done — 300ms opacity cross-fade between ambient ↔ audio-reactive renderers; 2s HSL color transition between stations (shortest hue path, smoothstep easing); VisualizationManager owns all color state; station color derived from djb2 hash of station UUID (vivid, deterministic, full wheel coverage — replaces sparse genre map) |
 | Tap shockwave / charge effects | ❌ Not started |
 | Ripple rings | ❌ Not started |
 | Station pre-loading | ✅ Done — `usePreload` hook pre-loads next station immediately after playback starts; expires after 30s to save bandwidth; re-primes on first pointer activity after expiry; `consume()` in `loadAndPlay` skips stream-wait for instant crossfade on forward navigation; deep link share still deferred until routing exists |
