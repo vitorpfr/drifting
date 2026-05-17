@@ -1,4 +1,4 @@
-# Drifting Web — Design Spec
+# Spectrale — Web Design Spec
 
 **Created:** 2026-05-09  
 **Status:** In progress  
@@ -84,7 +84,7 @@ If a CORS-friendly station's analysis returns silence in-browser despite the fla
 Matches iOS spec §11:
 
 1. Ambient visualization (flow-field shader) starts immediately — no blank frame
-2. "drifting" wordmark centered: Cormorant Garamond 300, `clamp(40px, 7vw, 72px)`, `rgba(255,255,255,0.6)`
+2. "spectrale" wordmark centered: Cormorant Garamond 300, `clamp(40px, 7vw, 72px)`, `rgba(255,255,255,0.6)`
 3. "tap to begin" below: system-ui, 12px, uppercase, `rgba(255,255,255,0.2)`
 4. Tap anywhere → "connecting…" replaces subtitle; cursor becomes `wait`
 5. Station loads → wordmark fades out over 0.8s (CSS transition); burst animation fires
@@ -251,7 +251,7 @@ Matches iOS spec §5 saved stations behavior. **Not yet implemented.**
 
 Required for background audio on iOS Safari. **Not yet implemented.**
 
-- `manifest.json`: name "Drifting", display standalone, theme color dark, icons
+- `manifest.json`: name "Spectrale", display standalone, theme color dark, icons
 - Service worker: cache shell assets; allow audio continuation in background
 - Without PWA install on iOS Safari, audio pauses on screen lock
 
