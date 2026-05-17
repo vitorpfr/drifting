@@ -2,7 +2,7 @@
 
 **Created:** 2026-05-09  
 **Status:** In progress  
-**iOS counterpart:** `design-spec.md`  
+**iOS counterpart:** `ios-design-spec.md`  
 **Port plan:** `plans/2026-05-09-web-port-plan.md`
 
 ---

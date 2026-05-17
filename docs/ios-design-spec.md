@@ -1,4 +1,6 @@
-# Drifting — Product Design Spec
+# iOS Design Spec
+
+> **Note:** The iOS app is currently named **Drifting** (App Store listing, bundle ID, screenshots). The project has since been renamed to Spectrale. This spec retains the old name where it refers to the iOS product specifically.
 
 **Date:** 2026-04-25
 **Status:** Active — build 5 submitted for App Review

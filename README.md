@@ -12,7 +12,7 @@ A passive music discovery app. Open it, music starts. Swipe to react. The app le
 
 ## Docs
 
-- [Design Spec](docs/design-spec.md)
+- [iOS Design Spec](docs/ios-design-spec.md)
 - [Privacy Policy](https://vitorpfr.github.io/drifting/privacy.html)
 
 ## Platform Strategy
