@@ -297,7 +297,7 @@ Matches iOS spec §12. **Done.**
 | Pre-load first station | ✅ Done — on mount, catalog is fetched and first station stream is pre-connected (audio.src set, browser buffers stream); on first tap/keypress, play() reuses the pre-connected player without resetting the buffer |
 | Next / prev station | ✅ Done — current audio/UI stays live during transition; "connecting…" shown in center |
 | Audio fades | ✅ Done — 1s fade-in on station start; crossfade on navigation (old fades out 400ms while new fades in 1s, triggered only after new stream is ready to eliminate silence gaps) |
-| Save + saved shelf | ✅ Done — swipe-down/ArrowDown/↓ saves; swipe-up/ArrowUp/↑ opens shelf; IndexedDB persistence (cap 25); toast feedback; burst on save |
+| Save + saved shelf | ✅ Done — swipe-down/ArrowDown/↓ saves; swipe-up/ArrowUp/↑ opens shelf; IndexedDB persistence (cap 25); toast feedback; burst on save; toast is dismissed when shelf opens (prevents z-index overlap) |
 | Play / pause | ✅ Done — Space key; AudioPlayer.pause/resume |
 | Recommendation engine | ✅ Done — pure functions, IDB schema (v2), `useRecommendation` hook, and App.tsx wiring all complete; signals recorded on skip/prev/save; dwell timer fires at 60s |
 | Info overlay controls (settings) | ✅ Done — share button (copies URL to clipboard), settings gear (opens modal), play/pause toggle; modal has taste profile reset, audio-only toggle (pauses visualization), and clear saved stations |
@@ -307,7 +307,7 @@ Matches iOS spec §12. **Done.**
 | Renderer cross-fade (300ms) | ✅ Done — 300ms opacity cross-fade between ambient ↔ audio-reactive renderers; 2s HSL color transition between stations (shortest hue path, smoothstep easing); VisualizationManager owns all color state; station color derived from djb2 hash of station UUID (vivid, deterministic, full wheel coverage — replaces sparse genre map) |
 | Genre hue bias on station colors | 🔭 Exploration — shift the hash hue toward a genre-appropriate range (e.g., jazz → warm, electronic → cool) while keeping per-station uniqueness; requires mapping common radio-browser tag variants |
 | Ko-fi nudge | ✅ Done — fires after "Saved ♥" toast dismisses once 10 cumulative saves threshold is reached (tracked in `saves_count` localStorage); once per session + 7-day cooldown; auto-dismisses after 5s; copy: "Enjoying Spectrale? Support development ☕"; positioned above station info on mobile |
-| Auth-required stream blocking | ✅ Done — fetch() HEAD probe before audio element load; 401 → treated as failed stream, retry logic skips to next station |
+| Auth-required stream blocking | ✅ Done — fetch() HEAD probe before audio element load; 401 → treated as failed stream, retry logic skips to next station; probe skipped on mobile (touch devices) to preserve iOS Safari autoplay gesture context and avoid consuming the 4s load timeout budget |
 | HQ quality badge | ✅ Done — "HQ" shown next to station name for ≥192kbps streams (~17% of catalog); replaces debug BEAT/PULSE badge |
 | Hosting + domain | ✅ Done — Cloudflare Pages; spectrale.app live (2026-05-17); Ko-fi donation link operational (Stripe integrated) |
 | Per-station deep link + share button | ✅ Done — share button copies `?station=<uuid>` when playing; deep link auto-plays that station on load; URL cleaned up after first station loads; falls back to random pick if UUID not in catalog; launch screen shows "tap to play [Station Name]" when opened via deep link; idle subtitle updated to "tap to discover radio in color" |
@@ -333,7 +333,7 @@ Matches iOS spec §12. **Done.**
 | Persistent listening history | ❌ Not started — keep last 20–30 stations across sessions in IDB so users can revisit stations heard but not saved; in-memory session history already exists, just needs an IDB write on each commit and a read path on startup |
 | Failing saved station indicator | ❌ Not started — ⚠ badge on saved station rows that failed to connect after 3 retries; clears automatically on successful retry |
 | First-station quality boost | ✅ Done — `qualityBoostFilter` in `useAudioLifecycle` restricts the first 3 station picks per session to stations with `favicon_url + name + country + bitrate ≥ 128`; tracked via `qualityRemainingRef` (starts at 3, decrements on commit); applied in `prime` and `loadInitial`; falls back to unfiltered pool if no quality stations match |
-| Locale-aware cold start | ❌ Not started — for the first 3 picks on a fresh visit, soft-bias toward stations matching the user's country/language (via `navigator.language` or timezone); reduces "first station feels foreign" bounce risk; a weighting nudge in `pickNext`, not a hard filter |
+| Locale-aware cold start | ✅ Done — `detectLocaleCountry()` in `utils.ts` maps device timezone (via `Intl.DateTimeFormat`) to a catalog country fragment (~30 IANA zones, prefix fallback for `America/` and `Australia/`); `localeBiasFilter()` narrows the pool to locale-matching stations for the first 3 picks, falls back to full pool if fewer than 10 local stations match; wired alongside `qualityBoostFilter` in `prime` and `loadInitial` |
 | Audio-reactive visualization (activate) | 🔭 Ready to activate — code fully built in VisualizationManager; CORS stations (73% of catalog) can switch to the 8000-particle + beat-driven ripple mode; needs a UX decision: default-on for CORS stations, or opt-in via Settings toggle |
 | Station blocking | ❌ Not started — "never play this station" action (long-press or button); adds station UUID to a blocked list in IDB; excluded from `pickNext` permanently; distinct from a skip signal |
 | Visualization themes | ❌ Not started — Minimal (single clean ring, no particles or ripples), Aurora (flowing horizontal light bands driven by bass/mid), Neon (sharp electric ring + dense particle field), Alchemy (domain-warped plasma); iOS Metal implementations exist as reference for the GLSL ports; free on web (no Plus paywall) |
@@ -365,5 +365,4 @@ Features to complete before posting to Reddit / driving external traffic. Ordere
 | HQ-only filter toggle | Niche but vocal audience (audiophiles) |
 | Failing saved station indicator | Reduces confusion when a saved station goes offline |
 | Station blocking | Will be one of the most common early requests (ad-heavy stations, jarring genres) |
-| Locale-aware cold start | Reduces "first station feels foreign" bounce; low-effort improvement to cold-start quality |
 | Visualization themes | Significant work; adds visual variety and replayability |
