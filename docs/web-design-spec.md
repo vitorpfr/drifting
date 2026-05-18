@@ -1,7 +1,7 @@
 # Spectrale — Web Design Spec
 
 **Created:** 2026-05-09  
-**Status:** In progress  
+**Status:** Live at spectrale.app — pre-release (deep links outstanding)  
 **iOS counterpart:** `ios-design-spec.md`  
 **Port plan:** `plans/2026-05-09-web-port-plan.md`
 
@@ -36,8 +36,8 @@ Same product principles as iOS:
 | Audio analysis | Web Audio API (AnalyserNode, FFT) |
 | Persistence | IndexedDB (recommendation engine, saved stations) |
 | Tests | Vitest + Testing Library + jsdom |
-| Hosting | TBD — Vercel / Cloudflare Pages / Netlify |
-| Domain | TBD |
+| Hosting | Cloudflare Pages |
+| Domain | spectrale.app (live) |
 
 No backend. All state on-device.
 
@@ -49,7 +49,7 @@ No backend. All state on-device.
 |---|---|---|
 | Haptics | Core Haptics, full expressiveness | Not implemented — browser vibration API too limited |
 | CarPlay | Supported | Not applicable |
-| Lock screen controls | MPNowPlayingInfoCenter (full) | Web Media Session API (partial) — deferred until PWA ships |
+| Lock screen controls | MPNowPlayingInfoCenter (full) | Web Media Session API — can ship independently of PWA; deferred (see §18) |
 | Background audio | Native, always | Requires PWA install on iOS Safari (16.4+); plain Safari pauses on lock |
 | App Store | Submitted | Not applicable |
 | Visualization | Metal shader (GPU) | WebGL / Three.js GLSL (GPU) — visually equivalent |
@@ -75,7 +75,7 @@ If a CORS-friendly station's analysis returns silence in-browser despite the fla
 
 **Catalog build:** `npx tsx scripts/buildCatalog.ts` — outputs `public/catalog.json`. Run periodically to refresh CORS flags as hosting providers change.
 
-**Current state:** `corsFriendly` is forced `false` in `App.tsx` (ambient-only). Re-enable once gesture navigation lands (so users can skip stations that fail silently).
+**Current state:** `corsFriendly` values used as-is from catalog. CORS stations get beat-driven ripples via Web Audio AnalyserNode; non-CORS stations get the ambient 5s pulse timer.
 
 ---
 
@@ -123,8 +123,8 @@ Always visible while playing. No tap-to-show, no auto-dismiss.
 - Country: system-ui, 13px, weight 400, `rgba(255,255,255,0.45)` — normalized (see §9)
 - Genre: system-ui, 13px, weight 400, `rgba(255,255,255,0.35)` — first tag, title-cased
 
-**Top-right (not yet implemented):** share · settings  
-**Bottom-right (not yet implemented):** play/pause
+**Top-right:** share · settings (both implemented)
+**Bottom-right:** play/pause + volume slider (both implemented)
 
 `pointer-events: none` on the info block so gestures pass through to the canvas.
 
@@ -152,24 +152,26 @@ Matches iOS spec §7, implemented in WebGL (Three.js).
 
 | Mode | Trigger | Description |
 |---|---|---|
-| Ambient | Non-CORS stations or silence fallback | Flow-field FBM shader, genre-seeded color, slow organic motion |
-| Audio-reactive | CORS-friendly stations | 8000-particle system driven by AnalyserNode FFT (bass/mid/treble) |
+| Ambient | Always (audio-reactive wired but never activated) | Flow-field FBM shader, station-seeded color, organic motion |
+| Audio-reactive | Reserved for future — wired in VisualizationManager, never switched to | 8000-particle system driven by AnalyserNode FFT (bass/mid/treble) |
+
+**Ambient renderer parameters (as shipped):**
+- Time multiplier: `0.30` (fast, organic)
+- Distortion scale: `r * 1.6` (turbulent pattern folding)
+- Brightness: `pow(f, 1.2) * 1.55 + 0.12` — floor prevents fully-black areas, reduced peak avoids white bleaching
+- Vignette: `smoothstep(0.5, 1.8, dist)` — gentle edge darkening, corners at ~30% brightness
+- Station colors: full saturation + brightness (`hsbToRgb(hue, 1.0, 1.0)`)
 
 **Visual effects (implemented):**
 
 | Effect | Implementation |
 |---|---|
-| Burst | Full-screen GLSL shader — smoothstep ring + 8 radial particles, fires on app open and station save |
-| Color identity | Genre-seeded color per station, 2s lerp transition between stations |
-
-**Visual effects (not yet implemented):**
-
-| Effect | Notes |
-|---|---|
-| Ripple rings | Up to 4 simultaneous expanding rings on beat detection (audio-reactive mode) |
-| Tap shockwave | Tight ring + echo ring on hold release, intensity scales with duration |
-| Tap charge | Contracting ring + center glow during hold |
-| Renderer cross-fade | 300ms blend between ambient and audio-reactive — currently instant cut |
+| Burst | Full-screen GLSL shader — smoothstep ring + 8 radial particles, fires on station change and save |
+| Color identity | UUID-seeded color per station (djb2 hash → full HSB wheel), 2s HSL lerp transition |
+| Ripple rings | 4-slot expanding rings; CORS stations: beat-driven (onset threshold 0.05, cooldown 350ms); non-CORS: 5s autonomous timer |
+| Tap charge | Two-layer center glow (tight core + soft halo) while holding, accumulates over 2s |
+| Tap shockwave | Primary ring + echo ring on hold release (~0.7s each); intensity scales with hold duration (max at 2s); 150ms dead zone for taps |
+| Volume control | Bottom-right slider (co-located with play/pause); persists across station transitions via `fadeIn(ms, targetVolume)` |
 
 **GLSL shader patterns (established — use for all future effects):**
 
@@ -192,24 +194,30 @@ Matches iOS spec §7, implemented in WebGL (Three.js).
 
 **Player:** `AudioPlayer` wraps `HTMLAudioElement` + `AudioContext` + `AnalyserNode`.
 
-- `play(url, corsFriendly)` — if `corsFriendly`, routes audio through `AudioContext` for FFT analysis; otherwise plays directly without analysis
+- `play(url, corsFriendly)` — if `corsFriendly`, routes audio through `AudioContext` for FFT analysis; otherwise plays directly via `audio.volume` without Web Audio graph
 - `getFrequencyBuckets()` — returns `{ bass, mid, treble }` (0–1 each) for visualization
 - `isSilent()` — returns true if all buckets below threshold; used by VisualizationManager silence fallback
 
-**Not yet implemented:**
-- Audio fade-in on station start (~1s)
-- Audio fade-out on skip (~0.4s)
-- Retry on stream failure (up to 2×)
-- Load timeout (4s)
-- Stall watchdog post-connect
-- Auto-resume on network recovery
-- Pre-buffering next station while current is playing
+**Critical invariant — AudioContext is only created for CORS streams.** Creating an AudioContext for non-CORS streams risks starting it in `suspended` state (iOS Safari / Chrome autoplay policy). Once `createMediaElementSource` is called, audio output is re-routed exclusively through the Web Audio graph — a suspended context produces complete silence. Non-CORS streams use `audio.volume` directly and are never connected to a graph.
+
+**Implemented:**
+- `fadeIn(durationMs, to = 1)` — 1s fade-in, respects current volume slider setting
+- `fadeOut(durationMs)` — 400ms crossfade on skip
+- Retry up to 3× with 4s load timeout per attempt
+- Stall watchdog (5s) auto-advances to next station
+- Auto-resume on network recovery and page visibility restore
+- Pre-buffering next station (30s expiry, re-primed on pointer activity)
+- `setVolume(v)` — live volume control; `desiredVolumeRef` in `useAudioLifecycle` threads it through all transitions
+- Stale buffer reconnect — if the user was paused for >30s, `resume()` clears the src and calls `play()` fresh; on tab return after a long pause, `preconnect()` is called silently in the background so the buffer is ready before the user hits play
+- External pause sync — on mobile, any pause that occurs while the app is backgrounded (e.g. lock screen controls) is treated as user-initiated on tab return, preventing unwanted auto-resume
+
+**Mobile preload behavior — `prime()` uses `preconnect()` only on touch devices.** On desktop, the preloaded next-station player calls `play()` silently at volume 0 so the buffer is warm at navigation time. On mobile (`navigator.maxTouchPoints > 0`), only `audio.src` is set (`preconnect()`); `play()` is never called on the preloaded player. This prevents iOS Safari from leaking audio from the preloaded stream — gainNode silencing is unreliable on iOS for MediaElementAudioSourceNode. `play()` is called inside `goNext()` instead, which runs within the swipe gesture context where `AudioContext.resume()` is guaranteed to succeed.
 
 ---
 
 ## 12. Recommendation engine
 
-Matches iOS spec §9. **Not yet implemented.**
+Matches iOS spec §9. **Done.**
 
 Runs entirely in the browser. Persists taste profile and saved stations in IndexedDB.
 
@@ -236,7 +244,7 @@ Runs entirely in the browser. Persists taste profile and saved stations in Index
 
 ## 13. Saved stations
 
-Matches iOS spec §5 saved stations behavior. **Not yet implemented.**
+Matches iOS spec §5 saved stations behavior. **Done.**
 
 - Persisted in IndexedDB
 - Save on swipe-down; burst animation triggers (already built)
@@ -259,7 +267,7 @@ Required for background audio on iOS Safari. **Not yet implemented.**
 
 ## 15. First-run gesture tutorial
 
-Matches iOS spec §12. Ships alongside gesture implementation. **Not yet implemented.**
+Matches iOS spec §12. **Done.**
 
 - Five hint labels arranged around screen center: ← next · → prev · ↑ favorites · ↓ save · · hold
 - Low-opacity white (~0.6), visualization visible underneath
@@ -270,14 +278,7 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 
 ## 16. Connectivity handling
 
-**Partially implemented.**
-
-- ✅ Retry up to 3 stations on initial load failure (NotSupportedError, network error)
-- ✅ Clean error message on exhausted retries ("Could not connect to a station. Tap to try again.")
-- ✅ Navigation failure no longer stops current player (audio keeps playing)
-- ❌ 4s load timeout per attempt
-- ❌ Stall watchdog post-connect
-- ❌ Auto-resume on network recovery
+**Done.** See §17 status entry for full detail.
 
 ---
 
@@ -285,12 +286,12 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 
 | Feature | Status |
 |---|---|
-| Launch experience | ✅ Done |
+| Launch experience | ✅ Done — on tap, wordmark disappears instantly; skeleton shimmer appears at bottom-left (station info placeholder) + real controls appear immediately (volume/settings functional, play/pause disabled until playing) |
 | Burst animation | ✅ Done |
 | Station info overlay | ✅ Done — favicon tile (genre gradient fallback, fades in on load), now-playing via ICY metadata (CORS stations only, polls every 30s), ♥ badge; name/country/favicon anchored; track title and genre float above/below without shifting |
 | Country normalization | ✅ Done |
 | Ambient visualization | ✅ Done |
-| Audio-reactive visualization | ✅ Built, ⚠️ force-disabled |
+| Audio-reactive visualization | ✅ Built, preserved in VisualizationManager — ambient-always for now; audio-reactive mode reserved for future exploration |
 | Gesture model | ✅ Done — all four directions + keyboard (←→↑↓ Space) + on-screen chevrons + touch swipe recognition (`useSwipeGesture` hook: 50px H / 80px V thresholds, left-edge dead zone, scroll prevention, pointer capture, flash feedback); hold effects deferred |
 | Any-key to start | ✅ Done — any keypress (excluding modifier-only combos) on the launch screen triggers playback |
 | Pre-load first station | ✅ Done — on mount, catalog is fetched and first station stream is pre-connected (audio.src set, browser buffers stream); on first tap/keypress, play() reuses the pre-connected player without resetting the buffer |
@@ -300,12 +301,77 @@ Matches iOS spec §12. Ships alongside gesture implementation. **Not yet impleme
 | Play / pause | ✅ Done — Space key; AudioPlayer.pause/resume |
 | Recommendation engine | ✅ Done — pure functions, IDB schema (v2), `useRecommendation` hook, and App.tsx wiring all complete; signals recorded on skip/prev/save; dwell timer fires at 60s |
 | Info overlay controls (settings) | ✅ Done — share button (copies URL to clipboard), settings gear (opens modal), play/pause toggle; modal has taste profile reset, audio-only toggle (pauses visualization), and clear saved stations |
-| Donation jar (Ko-fi link in Settings) | ❌ Not started — add when product is closer to done |
-| PWA shell | ❌ Not started |
+| Donation jar (Ko-fi link in Settings) | ✅ Done — "Support Spectrale / Buy a coffee ☕" row at bottom of settings modal; links to ko-fi.com/spectrale |
 | First-run tutorial | ✅ Done — `useFirstRunTutorial` hook (2s delay, 8s auto-dismiss, localStorage guard); `GestureTutorial` component; adapts labels for touch (swipe ← next) vs desktop (← prev / → next); hold hint included as placeholder; recommendation tagline "your taste profile builds as you listen"; dismissed by any goNext/goPrevious/save/shelf/playPause/share/audioOnly/settings action |
 | Connectivity handling / retry | ✅ Done — full connectivity resilience in `useAudioLifecycle`: 3-attempt retry with 4s load timeout per attempt on initial load and navigation; stall watchdog (5s) auto-advances to next station on stream drop; amber "STREAM DROPPED" toast shows live state ("moving to next station…" while transitioning, "moved to next station" after, tap to dismiss); auto-resume on network recovery (reconnects if stream dropped, resumes if paused); page visibility recovery (resumes paused player on tab focus); all audio/navigation state consolidated in `useAudioLifecycle` |
 | Renderer cross-fade (300ms) | ✅ Done — 300ms opacity cross-fade between ambient ↔ audio-reactive renderers; 2s HSL color transition between stations (shortest hue path, smoothstep easing); VisualizationManager owns all color state; station color derived from djb2 hash of station UUID (vivid, deterministic, full wheel coverage — replaces sparse genre map) |
 | Genre hue bias on station colors | 🔭 Exploration — shift the hash hue toward a genre-appropriate range (e.g., jazz → warm, electronic → cool) while keeping per-station uniqueness; requires mapping common radio-browser tag variants |
-| Tap shockwave / charge effects | ❌ Not started |
-| Ripple rings | ❌ Not started |
-| Station pre-loading | ✅ Done — preload logic lives inside `useAudioLifecycle`; next station pre-loaded immediately after each station commit; 30s expiry to save bandwidth; re-primes on first pointer activity after expiry; `consume()` in `goNext` skips stream-wait for instant crossfade on forward navigation |
+| Ko-fi nudge | ✅ Done — fires after "Saved ♥" toast dismisses (manual tap or 2s auto-dismiss); once per session + 7-day localStorage cooldown; auto-dismisses after 5s; copy: "Love Spectrale? ☕ Buy me a coffee" |
+| Auth-required stream blocking | ✅ Done — fetch() HEAD probe before audio element load; 401 → treated as failed stream, retry logic skips to next station |
+| HQ quality badge | ✅ Done — "HQ" shown next to station name for ≥192kbps streams (~17% of catalog); replaces debug BEAT/PULSE badge |
+| Hosting + domain | ✅ Done — Cloudflare Pages; spectrale.app live (2026-05-17); Ko-fi donation link operational (Stripe integrated) |
+| Per-station deep link + share button | ✅ Done — share button copies `?station=<uuid>` when playing; deep link auto-plays that station on load; URL cleaned up after first station loads; falls back to random pick if UUID not in catalog; launch screen shows "tap to play [Station Name]" when opened via deep link; idle subtitle updated to "tap to discover radio in color" |
+| PWA shell | ❌ Not started — `manifest.json` + service worker; required for background audio on iOS Safari (screen lock pauses without it) and home screen install; unlocks MediaSession lock screen controls |
+| Tap shockwave / charge effects | ✅ Done — `ShockwaveEffect`: center glow charge, primary + echo ring on release; hold >150ms triggers; intensity 0→1 over 2s hold; `App.tsx` pointer handlers with 15px movement cancel |
+| Ripple rings | ✅ Done — `RippleEffect`: 4-slot rings; CORS stations beat-driven (onset 0.05, cooldown 350ms, sentinel init); non-CORS 5s autonomous pulse |
+| Volume slider | ✅ Done — bottom-right, co-located with play/pause; 44px touch target; persists across station transitions; hidden on touch/mobile (device volume controls suffice) |
+| SEO foundations | ✅ Done — keyword-rich meta description and OG/Twitter tags; canonical link; JSON-LD WebApplication schema; robots.txt; sitemap.xml; noscript static content for crawlers |
+| og:image (social preview card) | ❌ Not started — 1200×630 branded image for link previews on Twitter/Slack/iMessage; high impact for social sharing; requires design asset |
+| Analytics instrumentation | ❌ Not started — Cloudflare Analytics custom events: `playback_started` (on first tap), `playback_duration` (seconds, on navigate away), `station_skipped`, `station_saved`, `genre_seed_completed` (with genre count); use `navigator.sendBeacon` to `https://cloudflareinsights.com/cdn-cgi/rum` or the CF Pages analytics helper |
+| Ambient renderer improvements | ✅ Done — speed 0.30, turbulence r*1.6, brightness floor +0.12, vignette softened, station colors full saturation |
+| Station pre-loading | ✅ Done — preload logic lives inside `useAudioLifecycle`; next station pre-loaded immediately after each station commit; 30s expiry to save bandwidth; re-primes on first pointer activity after expiry; `consume()` in `goNext` skips stream-wait for instant crossfade on forward navigation; desktop: pre-plays at volume 0 (buffer + AudioContext warm); mobile: preconnect() only — play() is deferred to goNext() inside the swipe gesture to prevent iOS audio leakage |
+| Build SHA fingerprint | ✅ Done — `CF_PAGES_COMMIT_SHA` injected at build time via Vite `define`; shown in Settings modal footer (faint, selectable) and logged to browser console on startup; `'local'` fallback in dev |
+| Search stations | ✅ Done — search icon in bottom-right controls (left of play/pause); fullscreen overlay with autofocused text input; live name filter as you type; results show name + country; tap plays immediately via `playStation()`; only available after catalog loads |
+| Filter stations | ✅ Done — filter icon in bottom-right controls; fullscreen overlay with genre chip picker (12 canonical genres in `genreMap.ts`, each maps to raw catalog tags) and country dropdown (all ~167 countries from catalog); active filter constrains the `pickNext` pool so all swipe/skip navigation stays within matching stations; icon tints purple when filter active; persists until cleared; `filterCatalog` option added to `useAudioLifecycle` |
+| MediaSession API | ✅ Done — `useMediaSession` hook sets `navigator.mediaSession.metadata` (title, artist = country · genre, artwork = favicon) on station change; registers play/pause/nexttrack/previoustrack handlers; updates `playbackState` on pause/resume; wired in App.tsx |
+| Genre seed on first launch | ✅ Done — `GenreSeed` component shown on first visit (localStorage `genre_seed_shown` guard); 8 genre chips (Ambient/Chill · Classical · Electronic/Dance · Hip-Hop/R&B · Rock · Jazz · Latin · Pop); max 3 selections; × to skip; "Start" button to confirm; calls `seedGenres()` in `useRecommendation` which boosts tag scores +1.0 per genre tag; shown only on idle phase |
+| Saved shelf improvements | ✅ Done — animated equalizer on playing station row; sort chips (Saved · A–Z · Country · Genre, persisted to localStorage); drag-to-reorder in Saved mode (HTML5 DnD desktop + touch); F key opens/closes shelf; 1–0 keys play first 10 stations with visible number badges (desktop only) |
+| Listening stats | ✅ Done — `totalListenSeconds` added to TasteProfile (zero-safe for existing profiles), accumulated in `onNavigatingAway`; `getStats()` in `useRecommendation` derives top genres + top countries from existing positive scores + total time + interaction count; "Your listening" section in Settings modal shows time / stations / top genres / top countries when `interactionCount > 0` |
+| Sleep timer | ❌ Not started — 15 / 30 / 60 min picker in Settings; fades out and pauses after the selected duration; timer cancelled on manual pause |
+| HQ-only filter toggle | ❌ Not started — Settings toggle to restrict catalog to ≥320kbps streams; currently only the HQ badge exists; ~5% of catalog qualifies |
+| No-connection overlay | ✅ Done — `isOffline` state in `useAudioLifecycle` (init from `navigator.onLine`, updated by `online`/`offline` events); overlay shows "No connection / Will resume automatically" centered on screen; clears automatically on `online` event which also resumes playback |
+| Persistent listening history | ❌ Not started — keep last 20–30 stations across sessions in IDB so users can revisit stations heard but not saved; in-memory session history already exists, just needs an IDB write on each commit and a read path on startup |
+| Failing saved station indicator | ❌ Not started — ⚠ badge on saved station rows that failed to connect after 3 retries; clears automatically on successful retry |
+| First-station quality boost | ✅ Done — `qualityBoostFilter` in `useAudioLifecycle` restricts the first 3 station picks per session to stations with `favicon_url + name + country + bitrate ≥ 128`; tracked via `qualityRemainingRef` (starts at 3, decrements on commit); applied in `prime` and `loadInitial`; falls back to unfiltered pool if no quality stations match |
+| Locale-aware cold start | ❌ Not started — for the first 3 picks on a fresh visit, soft-bias toward stations matching the user's country/language (via `navigator.language` or timezone); reduces "first station feels foreign" bounce risk; a weighting nudge in `pickNext`, not a hard filter |
+| Audio-reactive visualization (activate) | 🔭 Ready to activate — code fully built in VisualizationManager; CORS stations (73% of catalog) can switch to the 8000-particle + beat-driven ripple mode; needs a UX decision: default-on for CORS stations, or opt-in via Settings toggle |
+| Station blocking | ❌ Not started — "never play this station" action (long-press or button); adds station UUID to a blocked list in IDB; excluded from `pickNext` permanently; distinct from a skip signal |
+| Visualization themes | ❌ Not started — Minimal (single clean ring, no particles or ripples), Aurora (flowing horizontal light bands driven by bass/mid), Neon (sharp electric ring + dense particle field), Alchemy (domain-warped plasma); iOS Metal implementations exist as reference for the GLSL ports; free on web (no Plus paywall) |
+
+---
+
+## 18. Pre-launch roadmap
+
+Features to complete before posting to Reddit / driving external traffic. Ordered by priority.
+
+### Must-have before posting
+
+| Feature | Why |
+|---|---|
+| og:image | Reddit and social link previews are blank without it — single biggest conversion factor for a click |
+| Analytics instrumentation | Zero visibility right now — can't tell if anyone listens past 10s; must know before driving traffic. Use Cloudflare Analytics custom events (already on Pages, zero cost, GDPR-friendly). Events: `playback_started`, `playback_duration` (on navigate away), `station_skipped`, `station_saved`, `genre_seed_completed` |
+| MediaSession API | Lock-screen pause not recognised by the app; fix is small and standalone (no PWA needed) |
+| Genre seed on first launch | Cold-start quality; first impression for new users lands on a random station without it |
+| First-station quality boost | Pairs with genre seed — ensures the first station has a favicon and complete metadata |
+| No-connection overlay | Silent failure on offline looks broken; explicit message sets correct expectation |
+
+### High value, ship before or shortly after posting
+
+| Feature | Why |
+|---|---|
+| Audio-reactive visualization (activate) | Core differentiator — 73% of catalog supports it and the code is already written |
+| Listening stats | Gives users a reason to open Settings; builds attachment to the app |
+| Saved shelf improvements | Current station indicator + basic sort makes the shelf feel polished |
+| Persistent listening history | "I heard something great but didn't save it" is a predictable early complaint |
+| PWA shell | Enables background audio on iOS (screen lock pauses without it); high friction for mobile users |
+
+### Post-launch, based on feedback
+
+| Feature | Notes |
+|---|---|
+| Sleep timer | Common radio app request; straightforward to build |
+| HQ-only filter toggle | Niche but vocal audience (audiophiles) |
+| Failing saved station indicator | Reduces confusion when a saved station goes offline |
+| Station blocking | Will be one of the most common early requests (ad-heavy stations, jarring genres) |
+| Locale-aware cold start | Reduces "first station feels foreign" bounce; low-effort improvement to cold-start quality |
+| Visualization themes | Significant work; adds visual variety and replayability |
