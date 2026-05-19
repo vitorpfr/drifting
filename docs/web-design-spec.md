@@ -334,7 +334,7 @@ Matches iOS spec §12. **Done.**
 | Failing saved station indicator | ❌ Not started — ⚠ badge on saved station rows that failed to connect after 3 retries; clears automatically on successful retry |
 | First-station quality boost | ✅ Done — `qualityBoostFilter` in `useAudioLifecycle` restricts the first 3 station picks per session to stations with `favicon_url + name + country + bitrate ≥ 128`; tracked via `qualityRemainingRef` (starts at 3, decrements on commit); applied in `prime` and `loadInitial`; falls back to unfiltered pool if no quality stations match |
 | Locale-aware cold start | ✅ Done — `detectLocaleCountry()` in `utils.ts` maps device timezone (via `Intl.DateTimeFormat`) to a catalog country fragment (~30 IANA zones, prefix fallback for `America/` and `Australia/`); `localeBiasFilter()` narrows the pool to locale-matching stations for the first 3 picks, falls back to full pool if fewer than 10 local stations match; wired alongside `qualityBoostFilter` in `prime` and `loadInitial` |
-| Audio-reactive visualization (activate) | 🔭 Ready to activate — code fully built in VisualizationManager; CORS stations (73% of catalog) can switch to the 8000-particle + beat-driven ripple mode; needs a UX decision: default-on for CORS stations, or opt-in via Settings toggle |
+| Audio-reactive visualization (activate) | 🔭 Blocked on iOS Safari — infrastructure complete (AudioReactiveRenderer GLSL shader, beat detection, crossfade, CORS preconnect fix); works on desktop (confirmed visually); on iOS Safari the AnalyserNode returns all zeros despite the AudioContext running and audio playing at correct volume; suspected cause: WebKit CORS taint or AnalyserNode quirk when AudioContext is created inside a gesture and audio.src changes before play(); next step: add a debug readout of getByteFrequencyData values on iOS to confirm whether any non-zero data ever arrives |
 | Station blocking | ❌ Not started — "never play this station" action (long-press or button); adds station UUID to a blocked list in IDB; excluded from `pickNext` permanently; distinct from a skip signal |
 | Visualization themes | ❌ Not started — Minimal (single clean ring, no particles or ripples), Aurora (flowing horizontal light bands driven by bass/mid), Neon (sharp electric ring + dense particle field), Alchemy (domain-warped plasma); iOS Metal implementations exist as reference for the GLSL ports; free on web (no Plus paywall) |
 
@@ -354,7 +354,7 @@ Features to complete before posting to Reddit / driving external traffic. Ordere
 
 | Feature | Why |
 |---|---|
-| Audio-reactive visualization (activate) | Core differentiator — 73% of catalog supports it and the code is already written |
+| Audio-reactive visualization (activate) | Core differentiator — 73% of catalog supports it and the code is already written; blocked on iOS Safari AnalyserNode returning zeros (see status row above) |
 
 ### Post-launch, based on feedback
 
