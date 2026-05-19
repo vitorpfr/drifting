@@ -330,7 +330,7 @@ Matches iOS spec §12. **Done.**
 | Sleep timer | ❌ Not started — 15 / 30 / 60 min picker in Settings; fades out and pauses after the selected duration; timer cancelled on manual pause |
 | HQ-only filter toggle | ❌ Not started — Settings toggle to restrict catalog to ≥320kbps streams; currently only the HQ badge exists; ~5% of catalog qualifies |
 | No-connection overlay | ✅ Done — `isOffline` state in `useAudioLifecycle` (init from `navigator.onLine`, updated by `online`/`offline` events); overlay shows "No connection / Will resume automatically" centered on screen; clears automatically on `online` event which also resumes playback |
-| Persistent listening history | ❌ Not started — keep last 20–30 stations across sessions in IDB so users can revisit stations heard but not saved; in-memory session history already exists, just needs an IDB write on each commit and a read path on startup |
+| Persistent listening history | ✅ Done — IDB v3 `listenHistory` store (keyPath: `stationuuid`, upsert on commit); `useListenHistory` hook loads on mount and exposes `addToHistory`/`clearHistory`; max 30 entries, most-recent-first; saved shelf gains a "History" chip that switches to the history list (read-only, tap to play); wired in App.tsx via `onStationChanged` |
 | Failing saved station indicator | ❌ Not started — ⚠ badge on saved station rows that failed to connect after 3 retries; clears automatically on successful retry |
 | First-station quality boost | ✅ Done — `qualityBoostFilter` in `useAudioLifecycle` restricts the first 3 station picks per session to stations with `favicon_url + name + country + bitrate ≥ 128`; tracked via `qualityRemainingRef` (starts at 3, decrements on commit); applied in `prime` and `loadInitial`; falls back to unfiltered pool if no quality stations match |
 | Locale-aware cold start | ✅ Done — `detectLocaleCountry()` in `utils.ts` maps device timezone (via `Intl.DateTimeFormat`) to a catalog country fragment (~30 IANA zones, prefix fallback for `America/` and `Australia/`); `localeBiasFilter()` narrows the pool to locale-matching stations for the first 3 picks, falls back to full pool if fewer than 10 local stations match; wired alongside `qualityBoostFilter` in `prime` and `loadInitial` |
@@ -355,7 +355,6 @@ Features to complete before posting to Reddit / driving external traffic. Ordere
 | Feature | Why |
 |---|---|
 | Audio-reactive visualization (activate) | Core differentiator — 73% of catalog supports it and the code is already written |
-| Persistent listening history | "I heard something great but didn't save it" is a predictable early complaint |
 
 ### Post-launch, based on feedback
 
