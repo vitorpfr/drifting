@@ -7,7 +7,7 @@ A passive music discovery app. Open it, music starts. Swipe to react. The app le
 | Repo | Description |
 |---|---|
 | [spectrale](https://github.com/vitorpfr/spectrale) | Project home — docs, design spec, issue tracking |
-| [drifting-ios](https://github.com/vitorpfr/drifting-ios) | Native Swift iOS app (currently named Drifting on the App Store) |
+| [drifting-ios](https://github.com/vitorpfr/drifting-ios) | Native Swift iOS app (discontinued) |
 | [spectrale-web](https://github.com/vitorpfr/spectrale-web) | React + Vite web app |
 
 ## Docs
@@ -18,4 +18,4 @@ A passive music discovery app. Open it, music starts. Swipe to react. The app le
 
 ## Platform Strategy
 
-Web is the primary platform. iOS is available on the App Store. Android is planned for a future version.
+Web is the primary platform. The iOS app (Drifting) has been discontinued.

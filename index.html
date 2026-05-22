@@ -59,12 +59,17 @@
       margin-bottom: 36px;
     }
 
-    .appstore-badge img {
-      height: 48px;
-      opacity: 0.9;
+    .cta-button {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 32px;
+      border-radius: 100px;
       transition: opacity 0.2s;
     }
-    .appstore-badge img:hover { opacity: 1; }
+    .cta-button:hover { opacity: 0.85; }
 
     /* Screenshots */
     .screenshots {
@@ -217,16 +222,14 @@
     <img class="hero-icon" src="icon.png" alt="Spectrale app icon" />
     <h1>Spectrale</h1>
     <p>Radio discovery, visualized.<br>Open the app, music starts.</p>
-    <a class="appstore-badge" href="https://apps.apple.com/app/drifting-radio/id6763379522" target="_blank" rel="noopener">
-      <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" />
-    </a>
+    <a class="cta-button" href="https://spectrale.app" target="_blank" rel="noopener">Try Spectrale →</a>
   </section>
 
   <section class="screenshots">
     <img src="screenshots/screenshot1.png" alt="Spectrale visualization" />
-    <img src="screenshots/screenshot2.png" alt="Alchemy theme" />
-    <img src="screenshots/screenshot3.png" alt="Saved stations" />
-    <img src="screenshots/screenshot4.png" alt="Spectrale Plus" />
+    <img src="screenshots/screenshot2.png" alt="Spectrale visualization in a different color" />
+    <img src="screenshots/screenshot3.png" alt="Spectrale saved stations shelf" />
+    <img src="screenshots/screenshot4.png" alt="Spectrale filter UI" />
   </section>
 
   <section class="features">
@@ -252,22 +255,6 @@
         <h3>World radio</h3>
         <p>Thousands of stations from around the world, playing live.</p>
       </div>
-    </div>
-  </section>
-
-  <section class="plus">
-    <div class="plus-card">
-      <h2>Spectrale Plus</h2>
-      <p class="price">One-time purchase · $4.99</p>
-      <ul class="plus-features">
-        <li>Visualization themes — Minimal, Aurora, Neon, Alchemy</li>
-        <li>Home screen widget showing what's playing</li>
-        <li>Station filter — narrow by country or genre</li>
-        <li>Station search — find stations by name</li>
-        <li>High quality only — filter for 320kbps+ streams</li>
-        <li>Listening stats — total time, top genres and countries</li>
-        <li>Sleep timer — 15, 30, or 60 minutes</li>
-      </ul>
     </div>
   </section>
 
